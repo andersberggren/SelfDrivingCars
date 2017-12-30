@@ -30,11 +30,22 @@ public class Neuron {
 			throw new RuntimeException("Not allowed to call setValue on a "
 					+ this.getClass() + " that has inputs");
 		}
+		if (newValue < 0.0 || newValue > 1.0) {
+			throw new IllegalArgumentException(
+					"Illegal value: " + newValue + ". Must be between 0 and 1");
+		}
 		value = newValue;
 	}
 	
 	public double getValue() {
 		return value;
+	}
+	
+	public double getWeight(int indexOfInputNeuron) {
+		if (indexOfInputNeuron < 0 || indexOfInputNeuron >= inputs.size()) {
+			throw new IllegalArgumentException("Invalid index: " + indexOfInputNeuron);
+		}
+		return inputs.get(indexOfInputNeuron).getWeight();
 	}
 	
 	public void addInput(Neuron neuron, double weight) {
