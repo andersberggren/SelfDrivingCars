@@ -2,8 +2,11 @@ package com.mountainbranch.neuralnetwork;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 public class Neuron {
+	private static final Random RANDOM = new Random();
+	
 	private final List<NeuronLink> inputs  = new LinkedList<NeuronLink>();
 	private double value = 0.0;
 
@@ -48,7 +51,31 @@ public class Neuron {
 		return inputs.get(indexOfInputNeuron).getWeight();
 	}
 	
+	public void mutateWeights(double standardDeviation) {
+		for (NeuronLink link : inputs) {
+			link.weight += RANDOM.nextGaussian() * standardDeviation;
+		}
+	}
+	
 	public void addInput(Neuron neuron, double weight) {
 		inputs.add(new NeuronLink(neuron, weight));		
+	}
+	
+	private class NeuronLink {
+		private final Neuron from;
+		private double weight;
+		
+		private NeuronLink(Neuron from, double weight) {
+			this.from = from;
+			this.weight = weight;
+		}
+		
+		private double getValue() {
+			return from.getValue() * weight;
+		}
+		
+		private double getWeight() {
+			return weight;
+		}
 	}
 }

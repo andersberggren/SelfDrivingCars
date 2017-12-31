@@ -3,14 +3,16 @@ package com.mountainbranch.neuralnetwork;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 public class NeuralNetwork {
-	private static final Random RANDOM = new Random();
-	private static final double MUTATION_STANDARD_DEVIATION = 0.1;
-	
 	private final List<List<Neuron>> neuronLayers = new ArrayList<List<Neuron>>();
 	
+	/**
+	 * Creates a {@link NeuralNetwork} with the same number of neurons and
+	 * weights as {@code parent}.
+	 * 
+	 * @param parent
+	 */
 	public NeuralNetwork(NeuralNetwork parent) {
 		this(parent, parent.getNeuronsPerLayer());
 	}
@@ -33,12 +35,11 @@ public class NeuralNetwork {
 				Neuron neuron = new Neuron();
 				for (int iInputNeuron = 0; iLayer > 0 && iInputNeuron < neuronsPerLayer[iLayer-1];
 						iInputNeuron++) {
-					double baseWeight = 0.0;
+					double weight = 0.0;
 					if (parent != null) {
-						baseWeight = parent.getWeight(iLayer, iOutputNeuron, iInputNeuron);
+						weight = parent.getWeight(iLayer, iOutputNeuron, iInputNeuron);
 					}
-					double mutation = RANDOM.nextGaussian() * MUTATION_STANDARD_DEVIATION;
-					neuron.addInput(inputLayer.get(iInputNeuron), baseWeight + mutation);
+					neuron.addInput(inputLayer.get(iInputNeuron), weight);
 				}
 				newLayer.add(neuron);
 			}
@@ -93,5 +94,13 @@ public class NeuralNetwork {
 		}
 		Neuron outputNeuron = layer.get(indexOfOutputNeuron);
 		return outputNeuron.getWeight(indexOfInputNeuron);
+	}
+	
+	public void mutateAllWeights(double standardDeviation) {
+		for (List<Neuron> neuronLayer : neuronLayers) {
+			for (Neuron neuron : neuronLayer) {
+				neuron.mutateWeights(standardDeviation);
+			}
+		}
 	}
 }

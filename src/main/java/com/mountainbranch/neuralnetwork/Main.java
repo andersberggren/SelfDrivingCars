@@ -3,9 +3,12 @@ package com.mountainbranch.neuralnetwork;
 public class Main {
 
 	public static void main(String[] args) {
+		//new GameBuilder(new SimulationGameState(), 60, false, null).startGame();
 		NeuralNetwork nn = new NeuralNetwork(5, 4, 3, 2);
 		NeuralNetwork nn2 = new NeuralNetwork(nn);
-		NeuralNetwork nn3 = new NeuralNetwork(nn2);
+		nn.mutateAllWeights(0.1);
+		NeuralNetwork nn3 = new NeuralNetwork(nn);
+		
 		printWeights(nn);
 		printWeights(nn2);
 		printWeights(nn3);
