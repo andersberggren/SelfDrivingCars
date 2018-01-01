@@ -25,6 +25,17 @@ public class World {
 		for (int i = 1; i < walls.length; i++) {
 			obstacles.add(new Line(walls[i-1], walls[i]));
 		}
+		
+		Point[] perimeter = new Point[]{
+				new Point(0,          0),
+				new Point(size.width, 0),
+				new Point(size.width, size.height),
+				new Point(0,          size.height),
+		};
+		for (int i = 0; i < perimeter.length; i++) {
+			int otherIndex = (i+1) % perimeter.length;
+			obstacles.add(new Line(perimeter[i], perimeter[otherIndex]));
+		}
 	}
 	
 	public Dimension getSize() {

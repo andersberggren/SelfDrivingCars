@@ -48,7 +48,7 @@ public class SimulationGameState implements GameState {
 	public void render(Graphics2D g, Dimension screenSize) {
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.clearRect(0, 0, screenSize.width, screenSize.height);
-		g.setColor(new Color(128, 128, 128));
+		g.setColor(new Color(64, 64, 64));
 		g.fillRect(0, 0, screenSize.width, screenSize.height);
 
 		g.scale(screenSize.getWidth()/world.getSize().getWidth(),
@@ -56,21 +56,26 @@ public class SimulationGameState implements GameState {
 		
 		// Draw cars
 		for (int i = allCars.size()-1; i >= 0; i--) {
-			Polygon car = new Polygon();
-			for (Line line : allCars.get(i).asLines()) {
-				car.addPoint(line.endPoint1.x, line.endPoint1.y);
+			Car car = allCars.get(i);
+			Polygon carShape = new Polygon();
+			for (Line line : car.asLines()) {
+				carShape.addPoint(line.endPoint1.x, line.endPoint1.y);
 			}
-			float gradient = ((float) i) / allCars.size();
-			g.setColor(new Color(gradient, 1f-gradient, 0f));
-			g.fill(car);
+			if (activeCars.contains(car)) {
+				float gradient = ((float) i) / allCars.size();
+				g.setColor(new Color(gradient, 1f-gradient, 0f));
+			} else {
+				g.setColor(Color.GRAY);
+			}
+			g.fill(carShape);
 			g.setColor(Color.BLACK);
 			g.setStroke(new BasicStroke(50f));
-			g.draw(car);
+			g.draw(carShape);
 		}
 		
 		// Draw obstacles
 		g.setStroke(new BasicStroke(100f));
-		g.setColor(Color.BLACK);
+		g.setColor(Color.ORANGE);
 		for (Line line : world.getObstacles()) {
 			g.drawLine(line.endPoint1.x, line.endPoint1.y, line.endPoint2.x, line.endPoint2.y);
 		}
