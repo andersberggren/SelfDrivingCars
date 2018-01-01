@@ -16,7 +16,7 @@ public class Car {
 	// Distance is mm.
 	// Speed is mm/s.
 	// Rotation is radians/s.
-	private static Dimension SIZE = new Dimension(4000, 2000);
+	public static Dimension SIZE = new Dimension(4000, 2000);
 	private static final double MAX_SPEED = 30000.0;
 	private static final double MAX_STEERING = Math.PI;
 	

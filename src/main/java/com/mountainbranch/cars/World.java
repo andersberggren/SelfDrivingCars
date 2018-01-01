@@ -12,30 +12,51 @@ public class World {
 	private List<Line> obstacles = new LinkedList<Line>();
 	
 	public World() {
-		Point[] walls = new Point[]{
-				new Point(500,     500),
-				new Point(20000,   500),
-				new Point(30000,  5000),
-				new Point(50000, 25000),
-				new Point(60000, 45000),
-				new Point(65000, 50000),
-				new Point(70000, 52500),
-				new Point(95000, 52500)
-		};
-		for (int i = 1; i < walls.length; i++) {
-			obstacles.add(new Line(walls[i-1], walls[i]));
-		}
-		
-		Point[] perimeter = new Point[]{
+		// Perimeter
+		createObstaclesLoop(
 				new Point(0,          0),
 				new Point(size.width, 0),
 				new Point(size.width, size.height),
-				new Point(0,          size.height),
-		};
-		for (int i = 0; i < perimeter.length; i++) {
-			int otherIndex = (i+1) % perimeter.length;
-			obstacles.add(new Line(perimeter[i], perimeter[otherIndex]));
+				new Point(0,          size.height)
+				);
+		
+		createObstacles(
+				new Point((int) (size.getWidth()*1.0),  (int) (size.getHeight()*0.5)),
+				new Point((int) (size.getWidth()*0.75), (int) (size.getHeight()*0.5)),
+				new Point((int) (size.getWidth()*0.5),  (int) (size.getHeight()*0.75)),
+				new Point((int) (size.getWidth()*0.25), (int) (size.getHeight()*0.75)),
+				new Point((int) (size.getWidth()*0.2),  (int) (size.getHeight()*0.65)),
+				new Point((int) (size.getWidth()*0.2),  (int) (size.getHeight()*0.25)),
+				new Point((int) (size.getWidth()*0.75), (int) (size.getHeight()*0.1))
+				);
+		
+		createObstacles(
+				new Point((int) (size.getWidth()*1.0),  (int) (size.getHeight()*0.85)),
+				new Point((int) (size.getWidth()*0.95), (int) (size.getHeight()*0.95)),
+				new Point((int) (size.getWidth()*0.85),  (int) (size.getHeight()*1.0))
+				);
+
+		createObstacles(
+				new Point((int) (size.getWidth()*0.0),  (int) (size.getHeight()*0.9)),
+				new Point((int) (size.getWidth()*0.1),  (int) (size.getHeight()*1.0))
+				);
+		
+		createObstaclesLoop(
+				new Point((int) (size.getWidth()*0.075), (int) (size.getHeight()*0.4)),
+				new Point((int) (size.getWidth()*0.125), (int) (size.getHeight()*0.4)),
+				new Point((int) (size.getWidth()*0.125), (int) (size.getHeight()*0.2))
+				);
+	}
+	
+	private void createObstacles(Point... points) {
+		for (int i = 1; i < points.length; i++) {
+			obstacles.add(new Line(points[i-1], points[i]));
 		}
+	}
+	
+	private void createObstaclesLoop(Point... points) {
+		createObstacles(points);
+		obstacles.add(new Line(points[points.length-1], points[0]));
 	}
 	
 	public Dimension getSize() {

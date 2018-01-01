@@ -25,11 +25,18 @@ import com.mountainbranch.ze.geom.GeometryUtils;
 import com.mountainbranch.ze.geom.Line;
 
 public class SimulationGameState implements GameState {
+	private static final Color COLOR_BACKGROUND = new Color(64, 64, 64);
+	private static final Color COLOR_SENSOR = new Color(255, 192, 0, 64);
+	private static final Color COLOR_CAR_OUTLINE = Color.BLACK;
+	private static final Color COLOR_OBSTACLE = Color.LIGHT_GRAY;
+	private static final boolean SHOW_SENSORS = false;
+	
 	private World world = new World();
 	private List<Car> allCars = new ArrayList<Car>();
 	private Set<Car> activeCars = new HashSet<Car>();
 	private Map<Car, Double> fitness = new HashMap<Car, Double>();
 	private double time;
+	private double timeOfLastFitnessIncrease;
 	
 	public SimulationGameState() {
 		reset();
@@ -47,7 +54,7 @@ public class SimulationGameState implements GameState {
 			}
 		}
 		
-		if (time > 15.0 || activeCars.isEmpty()) {
+		if (activeCars.isEmpty() || time - timeOfLastFitnessIncrease > 1.0 || time > 30.0) {
 			reset();
 		}
 	}
@@ -56,17 +63,19 @@ public class SimulationGameState implements GameState {
 	public void render(Graphics2D g, Dimension screenSize) {
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.clearRect(0, 0, screenSize.width, screenSize.height);
-		g.setColor(new Color(64, 64, 64));
+		g.setColor(COLOR_BACKGROUND);
 		g.fillRect(0, 0, screenSize.width, screenSize.height);
 		g.scale(screenSize.getWidth()/world.getSize().getWidth(),
 				screenSize.getHeight()/world.getSize().getHeight());
 		
 		// Draw car sensors
-		g.setColor(new Color(255, 192, 0, 64));
+		g.setColor(COLOR_SENSOR);
 		g.setStroke(new BasicStroke(50f));
 		for (Car car : allCars) {
 			for (Line line : car.getSensorLines()) {
+				if (SHOW_SENSORS) {
 				g.drawLine(line.endPoint1.x, line.endPoint1.y, line.endPoint2.x, line.endPoint2.y);
+				}
 			}
 		}
 		
@@ -81,14 +90,14 @@ public class SimulationGameState implements GameState {
 			g.setColor(new Color(gradient, 1f-gradient, 0f));
 			g.fill(carShape);
 			
-			g.setColor(Color.BLACK);
+			g.setColor(COLOR_CAR_OUTLINE);
 			g.setStroke(new BasicStroke(50f));
 			g.draw(carShape);
 		}
 		
 		// Draw obstacles
 		g.setStroke(new BasicStroke(100f));
-		g.setColor(Color.LIGHT_GRAY);
+		g.setColor(COLOR_OBSTACLE);
 		for (Line line : world.getObstacles()) {
 			g.drawLine(line.endPoint1.x, line.endPoint1.y, line.endPoint2.x, line.endPoint2.y);
 		}
@@ -121,10 +130,14 @@ public class SimulationGameState implements GameState {
 		activeCars.clear();
 		fitness.clear();
 		time = 0.0;
+		timeOfLastFitnessIncrease = 0.0;
 		
-		Point startLocation = new Point(4000, 4000);
+		Point startLocation = new Point(
+				world.getSize().width - Car.SIZE.width*2,
+				world.getSize().height/2 + Car.SIZE.width);
+		double startAngle = Math.PI/2.0;
 		for (NeuralNetwork nn : neuralNetworks) {
-			allCars.add(new Car(nn, startLocation, 0.0));
+			allCars.add(new Car(nn, startLocation, startAngle));
 		}
 		activeCars.addAll(allCars);
 	}
@@ -141,11 +154,12 @@ public class SimulationGameState implements GameState {
 	}
 	
 	private void updateFitness(Car car) {
-		Point p = car.getLocation();
-		Double distance = (double) (p.x*p.x + p.y*p.y);
-		Double maxDistance = fitness.get(car);
-		if (maxDistance == null || distance > maxDistance) {
-			fitness.put(car, distance);
+		Point center = new Point(world.getSize().width/2, world.getSize().height/2);
+		Double angle = GeometryUtils.getAngle(center, car.getLocation());
+		Double maxAngle = fitness.get(car);
+		if (maxAngle == null || angle > maxAngle) {
+			fitness.put(car, angle);
+			timeOfLastFitnessIncrease = time;
 		}
 	}
 	
@@ -160,7 +174,7 @@ public class SimulationGameState implements GameState {
 			if (fitness2 == null) {
 				fitness2 = 0.0;
 			}
-			return (int) (fitness1 - fitness2);
+			return (int) ((fitness1 - fitness2) * 1000.0);
 		}
 		
 	}
