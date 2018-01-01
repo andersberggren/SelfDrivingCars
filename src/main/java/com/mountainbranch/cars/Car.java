@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.mountainbranch.neuralnetwork.NeuralNetwork;
+import com.mountainbranch.ze.geom.GeometryUtils;
 import com.mountainbranch.ze.geom.Line;
 
 public class Car {
@@ -48,11 +49,11 @@ public class Car {
 		return neuralNetwork;
 	}
 	
-	public void update(double deltaTime) {
-		// TODO Read sensors (input)
-		double[] input = new double[8];
+	public void update(double deltaTime, World world) {
+		// Read sensors
+		double[] input = readSensors(world);
 		
-		// Feed input values to neural network
+		// Feed sensor values to neural network
 		neuralNetwork.setInputs(input);
 		
 		// Use neural network output to determine velocity and steering
@@ -102,20 +103,46 @@ public class Car {
 	public Collection<Line> getSensorLines() {
 		List<Line> sensorLines = new LinkedList<Line>();
 		for (Sensor sensor : sensors) {
-			double angle = direction + sensor.angle;
-			Point near = new Point(
-					(int) (location.x + sensor.offset*Math.cos(angle)),
-					(int) (location.y + sensor.offset*Math.sin(angle)));
-			Point far = new Point(
-					(int) (location.x + (sensor.offset+Sensor.MAX_DISTANCE)*Math.cos(angle)),
-					(int) (location.y + (sensor.offset+Sensor.MAX_DISTANCE)*Math.sin(angle)));
-			sensorLines.add(new Line(near, far));
+			sensorLines.add(getSensorLine(sensor));
 		}
 		return sensorLines;
 	}
 	
+	private Line getSensorLine(Sensor sensor) {
+		double angle = direction + sensor.angle;
+		Point near = new Point(
+				(int) (location.x + sensor.offset*Math.cos(angle)),
+				(int) (location.y + sensor.offset*Math.sin(angle)));
+		Point far = new Point(
+				(int) (location.x + (sensor.offset+Sensor.MAX_DISTANCE)*Math.cos(angle)),
+				(int) (location.y + (sensor.offset+Sensor.MAX_DISTANCE)*Math.sin(angle)));
+		return new Line(near, far);
+	}
+	
+	private double[] readSensors(World world) {
+		double[] values = new double[sensors.size()];
+		List<Line> obstacles = world.getObstacles();
+		
+		for (int i = 0; i < sensors.size(); i++) {
+			Sensor sensor = sensors.get(i);
+			Line sensorLine = getSensorLine(sensor);
+			double distance = Sensor.MAX_DISTANCE;
+			for (Line obstacle : obstacles) {
+				Point collisionPoint = GeometryUtils.getIntersectionStrict(sensorLine, obstacle);
+				if (collisionPoint != null) {
+					Point sensorLocation = sensorLine.endPoint1;
+					distance = Math.min(distance,
+							GeometryUtils.getDistance(sensorLocation, collisionPoint));
+				}
+			}
+			values[i] = distance/Sensor.MAX_DISTANCE;
+		}
+		
+		return values;
+	}
+	
 	private class Sensor {
-		private static final double MAX_DISTANCE = 20000.0;
+		private static final double MAX_DISTANCE = 10000.0;
 		
 		/** The angle of the sensor, relative to the cars forward direction. */
 		private final double angle;

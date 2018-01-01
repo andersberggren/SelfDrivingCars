@@ -40,7 +40,7 @@ public class SimulationGameState implements GameState {
 		time += deltaTime;
 		
 		for (Car car : new LinkedList<Car>(activeCars)) {
-			car.update(deltaTime);
+			car.update(deltaTime, world);
 			updateFitness(car);
 			if (hasCollided(car)) {
 				activeCars.remove(car);
@@ -99,7 +99,7 @@ public class SimulationGameState implements GameState {
 		if (allCars.isEmpty()) {
 			// This is the first generation
 			Evolution evolution = new Evolution(1.0);
-			neuralNetworks = evolution.generatePopulation(20, 8, 8, 8, 2);
+			neuralNetworks = evolution.generatePopulation(100, 8, 8, 8, 2);
 		} else {
 			// This is not the first generation.
 			// Create a new generation based on the current generation.
