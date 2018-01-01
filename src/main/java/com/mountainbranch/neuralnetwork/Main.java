@@ -7,11 +7,6 @@ public class Main {
 
 	public static void main(String[] args) {
 		new GameBuilder(new SimulationGameState(), 60, false, null).startGame();
-		NeuralNetwork nn = new NeuralNetwork(5, 4, 3, 2);
-		NeuralNetwork nn2 = new NeuralNetwork(nn);
-		nn.mutateAllWeights(0.1);
-		//printWeights(nn);
-		//printOutputs(nn, 0.1, 0.2, 1.0, 1.0, 1.0);
 	}
 	
 	public static void printWeights(NeuralNetwork nn) {

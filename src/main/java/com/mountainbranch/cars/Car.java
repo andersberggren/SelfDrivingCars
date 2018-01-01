@@ -15,8 +15,8 @@ public class Car {
 	// Speed is mm/s.
 	// Rotation is radians/s.
 	private static Dimension SIZE = new Dimension(4000, 2000);
-	private static final double MAX_SPEED = 10000.0;
-	private static final double MAX_STEERING = Math.PI/2.0;
+	private static final double MAX_SPEED = 30000.0;
+	private static final double MAX_STEERING = Math.PI;
 	
 	private final NeuralNetwork neuralNetwork;
 	private final Point2D.Double location;

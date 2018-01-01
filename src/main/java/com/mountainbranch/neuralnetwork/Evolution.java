@@ -1,7 +1,11 @@
 package com.mountainbranch.neuralnetwork;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class Evolution {
@@ -25,8 +29,9 @@ public class Evolution {
 	
 	public List<NeuralNetwork> generateNextGeneration(List<NeuralNetwork> currentGeneration) {
 		List<NeuralNetwork> nextGeneration = new LinkedList<NeuralNetwork>();
-		int totalWeight = (currentGeneration.size()+1) * currentGeneration.size() / 2;
+		final Map<NeuralNetwork, Integer> rank = new HashMap<NeuralNetwork, Integer>();
 		
+		int totalWeight = (currentGeneration.size()+1) * currentGeneration.size() / 2;
 		while (nextGeneration.size() < currentGeneration.size()) {
 			int rand = RANDOM.nextInt(totalWeight);
 			for (int i = 0; i < currentGeneration.size(); i++) {
@@ -35,12 +40,20 @@ public class Evolution {
 					NeuralNetwork nn = new NeuralNetwork(currentGeneration.get(i));
 					nn.mutateAllWeights(mutationStandardDeviation);
 					nextGeneration.add(nn);
+					rank.put(nn, i);
 					break;
 				} else {
 					rand -= weight;
 				}
 			}
 		}
+		
+		Collections.sort(nextGeneration, new Comparator<NeuralNetwork>(){
+			@Override
+			public int compare(NeuralNetwork o1, NeuralNetwork o2) {
+				return rank.get(o1) - rank.get(o2);
+			}
+		});
 		
 		return nextGeneration;
 	}

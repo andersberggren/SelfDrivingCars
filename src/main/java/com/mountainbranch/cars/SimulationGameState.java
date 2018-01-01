@@ -8,8 +8,13 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.mountainbranch.gameframework.core.GameEngine;
@@ -23,6 +28,7 @@ public class SimulationGameState implements GameState {
 	private World world = new World();
 	private List<Car> allCars = new ArrayList<Car>();
 	private Set<Car> activeCars = new HashSet<Car>();
+	private Map<Car, Double> fitness = new HashMap<Car, Double>();
 	private double time;
 	
 	public SimulationGameState() {
@@ -32,14 +38,16 @@ public class SimulationGameState implements GameState {
 	@Override
 	public void update(double deltaTime, GameEngine gameEngine) {
 		time += deltaTime;
-		for (Car car : new HashSet<Car>(activeCars)) {
+		
+		for (Car car : new LinkedList<Car>(activeCars)) {
 			car.update(deltaTime);
+			updateFitness(car);
 			if (hasCollided(car)) {
 				activeCars.remove(car);
 			}
 		}
 		
-		if (time > 30.0 || activeCars.isEmpty()) {
+		if (time > 15.0 || activeCars.isEmpty()) {
 			reset();
 		}
 	}
@@ -50,7 +58,6 @@ public class SimulationGameState implements GameState {
 		g.clearRect(0, 0, screenSize.width, screenSize.height);
 		g.setColor(new Color(64, 64, 64));
 		g.fillRect(0, 0, screenSize.width, screenSize.height);
-
 		g.scale(screenSize.getWidth()/world.getSize().getWidth(),
 				screenSize.getHeight()/world.getSize().getHeight());
 		
@@ -61,13 +68,10 @@ public class SimulationGameState implements GameState {
 			for (Line line : car.asLines()) {
 				carShape.addPoint(line.endPoint1.x, line.endPoint1.y);
 			}
-			if (activeCars.contains(car)) {
-				float gradient = ((float) i) / allCars.size();
-				g.setColor(new Color(gradient, 1f-gradient, 0f));
-			} else {
-				g.setColor(Color.GRAY);
-			}
+			float gradient = ((float) i) / allCars.size();
+			g.setColor(new Color(gradient, 1f-gradient, 0f));
 			g.fill(carShape);
+			
 			g.setColor(Color.BLACK);
 			g.setStroke(new BasicStroke(50f));
 			g.draw(carShape);
@@ -82,12 +86,33 @@ public class SimulationGameState implements GameState {
 	}
 	
 	private void reset() {
+		List<NeuralNetwork> neuralNetworks;
+		if (allCars.isEmpty()) {
+			// This is the first generation
+			Evolution evolution = new Evolution(1.0);
+			neuralNetworks = evolution.generatePopulation(100, 8, 8, 8, 2);
+		} else {
+			// This is not the first generation.
+			// Create a new generation based on the current generation.
+			
+			// Sort cars by fitness (highest fitness first)
+			Collections.sort(allCars, new CarComparator());
+			Collections.reverse(allCars);
+			
+			List<NeuralNetwork> currentGeneration = new LinkedList<NeuralNetwork>();
+			for (Car car : allCars) {
+				currentGeneration.add(car.getNeuralNetwork());
+			}
+			
+			Evolution evolution = new Evolution(0.05);
+			neuralNetworks = evolution.generateNextGeneration(currentGeneration);
+		}
+		
 		allCars.clear();
 		activeCars.clear();
+		fitness.clear();
 		time = 0.0;
 		
-		Evolution evolution = new Evolution(0.1);
-		List<NeuralNetwork> neuralNetworks = evolution.generatePopulation(100, 8, 8, 8, 2);
 		Point startLocation = new Point(4000, 4000);
 		for (NeuralNetwork nn : neuralNetworks) {
 			allCars.add(new Car(nn, startLocation, 0.0));
@@ -104,5 +129,30 @@ public class SimulationGameState implements GameState {
 			}
 		}
 		return false;
+	}
+	
+	private void updateFitness(Car car) {
+		Point p = car.getLocation();
+		Double distance = (double) (p.x*p.x + p.y*p.y);
+		Double maxDistance = fitness.get(car);
+		if (maxDistance == null || distance > maxDistance) {
+			fitness.put(car, distance);
+		}
+	}
+	
+	private class CarComparator implements Comparator<Car> {
+		@Override
+		public int compare(Car o1, Car o2) {
+			Double fitness1 = fitness.get(o1);
+			if (fitness1 == null) {
+				fitness1 = 0.0;
+			}
+			Double fitness2 = fitness.get(o2);
+			if (fitness2 == null) {
+				fitness2 = 0.0;
+			}
+			return (int) (fitness1 - fitness2);
+		}
+		
 	}
 }
