@@ -5,6 +5,7 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.mountainbranch.neuralnetwork.NeuralNetwork;
@@ -21,11 +22,26 @@ public class Car {
 	private final NeuralNetwork neuralNetwork;
 	private final Point2D.Double location;
 	private double direction;
+	private List<Sensor> sensors;
 	
 	public Car(NeuralNetwork neuralNetwork, Point startLocation, double direction) {
 		this.neuralNetwork = neuralNetwork;
 		this.location = new Point2D.Double(startLocation.x, startLocation.y);
 		this.direction = direction;
+		
+		// Create sensors
+		sensors = new ArrayList<Sensor>();
+		for (int x = -1; x <= 1; x++) {
+			for (int y = -1; y <= 1; y++) {
+				if (!(x == 0 && y == 0)) {
+					double xOffset = SIZE.getWidth()/2.0  * x;
+					double yOffset = SIZE.getHeight()/2.0 * y;
+					double angle = Math.atan2(yOffset, xOffset);
+					double offset = Math.sqrt(xOffset*xOffset + yOffset*yOffset);
+					sensors.add(new Sensor(angle, offset));
+				}
+			}
+		}
 	}
 	
 	public NeuralNetwork getNeuralNetwork() {
@@ -81,5 +97,34 @@ public class Car {
 		}
 		
 		return lines;
+	}
+	
+	public Collection<Line> getSensorLines() {
+		List<Line> sensorLines = new LinkedList<Line>();
+		for (Sensor sensor : sensors) {
+			double angle = direction + sensor.angle;
+			Point near = new Point(
+					(int) (location.x + sensor.offset*Math.cos(angle)),
+					(int) (location.y + sensor.offset*Math.sin(angle)));
+			Point far = new Point(
+					(int) (location.x + (sensor.offset+Sensor.MAX_DISTANCE)*Math.cos(angle)),
+					(int) (location.y + (sensor.offset+Sensor.MAX_DISTANCE)*Math.sin(angle)));
+			sensorLines.add(new Line(near, far));
+		}
+		return sensorLines;
+	}
+	
+	private class Sensor {
+		private static final double MAX_DISTANCE = 20000.0;
+		
+		/** The angle of the sensor, relative to the cars forward direction. */
+		private final double angle;
+		/** The distance from the cars center to the sensor. */
+		private final double offset;
+		
+		private Sensor(double angle, double offset) {
+			this.angle = angle;
+			this.offset = offset;
+		}
 	}
 }

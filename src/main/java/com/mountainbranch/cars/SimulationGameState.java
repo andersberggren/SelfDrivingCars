@@ -61,6 +61,15 @@ public class SimulationGameState implements GameState {
 		g.scale(screenSize.getWidth()/world.getSize().getWidth(),
 				screenSize.getHeight()/world.getSize().getHeight());
 		
+		// Draw car sensors
+		g.setColor(new Color(255, 192, 0, 64));
+		g.setStroke(new BasicStroke(50f));
+		for (Car car : allCars) {
+			for (Line line : car.getSensorLines()) {
+				g.drawLine(line.endPoint1.x, line.endPoint1.y, line.endPoint2.x, line.endPoint2.y);
+			}
+		}
+		
 		// Draw cars
 		for (int i = allCars.size()-1; i >= 0; i--) {
 			Car car = allCars.get(i);
@@ -79,7 +88,7 @@ public class SimulationGameState implements GameState {
 		
 		// Draw obstacles
 		g.setStroke(new BasicStroke(100f));
-		g.setColor(Color.ORANGE);
+		g.setColor(Color.LIGHT_GRAY);
 		for (Line line : world.getObstacles()) {
 			g.drawLine(line.endPoint1.x, line.endPoint1.y, line.endPoint2.x, line.endPoint2.y);
 		}
@@ -90,7 +99,7 @@ public class SimulationGameState implements GameState {
 		if (allCars.isEmpty()) {
 			// This is the first generation
 			Evolution evolution = new Evolution(1.0);
-			neuralNetworks = evolution.generatePopulation(100, 8, 8, 8, 2);
+			neuralNetworks = evolution.generatePopulation(20, 8, 8, 8, 2);
 		} else {
 			// This is not the first generation.
 			// Create a new generation based on the current generation.
