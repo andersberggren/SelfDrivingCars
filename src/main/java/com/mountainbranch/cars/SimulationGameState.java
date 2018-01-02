@@ -19,6 +19,7 @@ import java.util.Set;
 
 import com.mountainbranch.gameframework.core.GameEngine;
 import com.mountainbranch.gameframework.core.GameState;
+import com.mountainbranch.gui.Settings;
 import com.mountainbranch.neuralnetwork.Evolution;
 import com.mountainbranch.neuralnetwork.NeuralNetwork;
 import com.mountainbranch.ze.geom.GeometryUtils;
@@ -31,19 +32,29 @@ public class SimulationGameState implements GameState {
 	private static final Color COLOR_OBSTACLE = Color.LIGHT_GRAY;
 	private static final boolean SHOW_SENSORS = false;
 	
+	private final Settings settings;
 	private World world = new World();
 	private List<Car> allCars = new ArrayList<Car>();
 	private Set<Car> activeCars = new HashSet<Car>();
 	private Map<Car, Integer> fitness = new HashMap<Car, Integer>();
 	private double time;
-	private double timeOfLastFitnessIncrease;
 	
-	public SimulationGameState() {
+	public SimulationGameState(Settings settings) {
+		this.settings = settings;
 		reset();
 	}
 	
 	@Override
 	public void update(double deltaTime, GameEngine gameEngine) {
+		if (settings.getSkip()) {
+			while (!update(deltaTime));
+		} else {
+			update(deltaTime);
+		}
+	}
+	
+	// Returns true iff this generation completed during this update
+	private boolean update(double deltaTime) {
 		time += deltaTime;
 
 		for (Car car : new LinkedList<Car>(activeCars)) {
@@ -54,9 +65,11 @@ public class SimulationGameState implements GameState {
 			}
 		}
 		
-		if (activeCars.isEmpty() || time - timeOfLastFitnessIncrease > 1.0 || time > 30.0) {
+		if (activeCars.isEmpty() || time > 60.0) {
 			reset();
+			return true;
 		}
+		return false;
 	}
 
 	@Override
@@ -130,7 +143,6 @@ public class SimulationGameState implements GameState {
 		activeCars.clear();
 		fitness.clear();
 		time = 0.0;
-		timeOfLastFitnessIncrease = 0.0;
 		
 		Point startLocation = new Point(
 				world.getSize().width - Car.SIZE.width*2,
@@ -159,7 +171,6 @@ public class SimulationGameState implements GameState {
 		Integer maxAngle = fitness.get(car);
 		if (maxAngle == null || angle > maxAngle) {
 			fitness.put(car, angle);
-			timeOfLastFitnessIncrease = time;
 		}
 	}
 	
