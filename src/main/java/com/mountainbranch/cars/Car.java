@@ -58,13 +58,18 @@ public class Car {
 		
 		// Use neural network output to determine velocity and steering
 		double[] output = neuralNetwork.getOutputs();
-		double velocity = output[0]*2.0 - 1.0;
-		double steering = output[1]*2.0 - 1.0;
+		double velocity = (output[0]*2.0 - 1.0) * MAX_SPEED;
+		double steering = (output[1]*2.0 - 1.0) * MAX_STEERING;
 		
 		// Move car
-		direction += steering * MAX_STEERING * deltaTime;
-		location.x += velocity * MAX_SPEED * deltaTime * Math.cos(direction);
-		location.y += velocity * MAX_SPEED * deltaTime * Math.sin(direction);
+		double turnRadius = SIZE.getWidth() * 1.0;
+		double maxSteering = Math.abs(velocity) / turnRadius;
+		if (Math.abs(steering) > maxSteering) {
+			steering = maxSteering * Math.signum(steering);
+		}
+		direction += steering * deltaTime;
+		location.x += velocity * deltaTime * Math.cos(direction);
+		location.y += velocity * deltaTime * Math.sin(direction);
 	}
 	
 	public Point getLocation() {

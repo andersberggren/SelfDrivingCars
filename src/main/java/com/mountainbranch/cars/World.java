@@ -14,10 +14,10 @@ public class World {
 	public World() {
 		// Perimeter
 		createObstaclesLoop(
-				new Point(0,          0),
-				new Point(size.width, 0),
-				new Point(size.width, size.height),
-				new Point(0,          size.height)
+				new Point(0,            0),
+				new Point(size.width-1, 0),
+				new Point(size.width-1, size.height-1),
+				new Point(0,            size.height-1)
 				);
 		
 		createObstacles(

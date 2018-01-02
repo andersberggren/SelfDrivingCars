@@ -34,7 +34,7 @@ public class SimulationGameState implements GameState {
 	private World world = new World();
 	private List<Car> allCars = new ArrayList<Car>();
 	private Set<Car> activeCars = new HashSet<Car>();
-	private Map<Car, Double> fitness = new HashMap<Car, Double>();
+	private Map<Car, Integer> fitness = new HashMap<Car, Integer>();
 	private double time;
 	private double timeOfLastFitnessIncrease;
 	
@@ -45,7 +45,7 @@ public class SimulationGameState implements GameState {
 	@Override
 	public void update(double deltaTime, GameEngine gameEngine) {
 		time += deltaTime;
-		
+
 		for (Car car : new LinkedList<Car>(activeCars)) {
 			car.update(deltaTime, world);
 			updateFitness(car);
@@ -135,7 +135,7 @@ public class SimulationGameState implements GameState {
 		Point startLocation = new Point(
 				world.getSize().width - Car.SIZE.width*2,
 				world.getSize().height/2 + Car.SIZE.width);
-		double startAngle = Math.PI/2.0;
+		double startAngle = 0.75*Math.PI;
 		for (NeuralNetwork nn : neuralNetworks) {
 			allCars.add(new Car(nn, startLocation, startAngle));
 		}
@@ -155,8 +155,8 @@ public class SimulationGameState implements GameState {
 	
 	private void updateFitness(Car car) {
 		Point center = new Point(world.getSize().width/2, world.getSize().height/2);
-		Double angle = GeometryUtils.getAngle(center, car.getLocation());
-		Double maxAngle = fitness.get(car);
+		Integer angle = (int) (GeometryUtils.getAngle(center, car.getLocation()) * 1000.0);
+		Integer maxAngle = fitness.get(car);
 		if (maxAngle == null || angle > maxAngle) {
 			fitness.put(car, angle);
 			timeOfLastFitnessIncrease = time;
@@ -166,13 +166,13 @@ public class SimulationGameState implements GameState {
 	private class CarComparator implements Comparator<Car> {
 		@Override
 		public int compare(Car o1, Car o2) {
-			Double fitness1 = fitness.get(o1);
+			Integer fitness1 = fitness.get(o1);
 			if (fitness1 == null) {
-				fitness1 = 0.0;
+				fitness1 = 0;
 			}
-			Double fitness2 = fitness.get(o2);
+			Integer fitness2 = fitness.get(o2);
 			if (fitness2 == null) {
-				fitness2 = 0.0;
+				fitness2 = 0;
 			}
 			return (int) ((fitness1 - fitness2) * 1000.0);
 		}
