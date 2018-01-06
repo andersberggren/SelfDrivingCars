@@ -17,7 +17,7 @@ public class Car {
 	// Speed is mm/s.
 	// Rotation is radians/s.
 	public static final Dimension SIZE = new Dimension(4000, 2000);
-	public static final int NUMBER_OF_INPUTS = 8;
+	public static final int NUMBER_OF_INPUTS = 9;
 	public static final int NUMBER_OF_OUTPUTS = 2;
 	private static final double MAX_SPEED = 30000.0;
 	private static final double MAX_STEERING = Math.PI;
@@ -34,16 +34,29 @@ public class Car {
 		
 		// Create sensors
 		sensors = new ArrayList<Sensor>();
-		for (int x = -1; x <= 1; x++) {
-			for (int y = -1; y <= 1; y++) {
-				if (!(x == 0 && y == 0)) {
-					double xOffset = SIZE.getWidth()/2.0  * x;
-					double yOffset = SIZE.getHeight()/2.0 * y;
-					double angle = Math.atan2(yOffset, xOffset);
-					double offset = Math.sqrt(xOffset*xOffset + yOffset*yOffset);
-					sensors.add(new Sensor(angle, offset));
+		double angleSpread = Math.PI;
+		double sensorLength = SIZE.getWidth()+SIZE.getHeight();
+		Point carCenter = new Point((int) location.x, (int) location.y);
+		Collection<Line> carAsLines = this.asLines();
+		for (int i = 0; i < NUMBER_OF_INPUTS; i++) {
+			double sensorAngle = -(angleSpread/2.0) + i*angleSpread/(NUMBER_OF_INPUTS-1);
+			double combinedAngle = direction + sensorAngle;
+			Line sensorLine = new Line(
+					carCenter,
+					new Point(carCenter.x + (int) (sensorLength * Math.cos(combinedAngle)),
+					          carCenter.y + (int) (sensorLength * Math.sin(combinedAngle))));
+			for (Line carLine : carAsLines) {
+				Point intersection = GeometryUtils.getIntersectionStrict(sensorLine, carLine);
+				if (intersection != null) {
+					double offset = GeometryUtils.getDistance(carCenter, intersection);
+					sensors.add(new Sensor(sensorAngle, offset));
+					break;
 				}
 			}
+		}
+		if (sensors.size() != NUMBER_OF_INPUTS) {
+			throw new RuntimeException(sensors.size() + " sensors was created, but expected "
+					+ NUMBER_OF_INPUTS);
 		}
 	}
 	
@@ -88,7 +101,7 @@ public class Car {
 		angles[1] = Math.PI - angles[0];
 		angles[2] = -angles[1];
 		angles[3] = -angles[0];
-		Point[] vertices = new Point[4];
+		Point[] vertices = new Point[angles.length];
 		double magnitude = Math.sqrt(Math.pow(SIZE.getWidth()/2.0, 2.0)
 				+ Math.pow(SIZE.getHeight()/2.0, 2.0));
 		
@@ -122,7 +135,6 @@ public class Car {
 	private Line getSensorLine(Sensor sensor, boolean showMaxDistance) {
 		double angle = direction + sensor.angle;
 		double distance = showMaxDistance ? Sensor.MAX_DISTANCE : sensor.distance;
-		distance = Math.max(distance, 10.0);
 		Point near = new Point(
 				(int) (location.x + sensor.offset*Math.cos(angle)),
 				(int) (location.y + sensor.offset*Math.sin(angle)));
