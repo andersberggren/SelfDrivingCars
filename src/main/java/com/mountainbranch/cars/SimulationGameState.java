@@ -120,8 +120,14 @@ public class SimulationGameState implements GameState {
 		List<NeuralNetwork> neuralNetworks;
 		if (allCars.isEmpty()) {
 			// This is the first generation
-			Evolution evolution = new Evolution(1.0);
-			neuralNetworks = evolution.generatePopulation(100, 8, 8, 8, 2);
+			int numberOfIndividuals = 100;
+			int[] neuronsPerLayer = new int[4];
+			for (int i = 0; i < neuronsPerLayer.length-1; i++) {
+				neuronsPerLayer[i] = Car.NUMBER_OF_INPUTS;
+			}
+			neuronsPerLayer[neuronsPerLayer.length-1] = Car.NUMBER_OF_OUTPUTS;
+			Evolution evolution = new Evolution(0.5);
+			neuralNetworks = evolution.generatePopulation(numberOfIndividuals, neuronsPerLayer);
 		} else {
 			// This is not the first generation.
 			// Create a new generation based on the current generation.
