@@ -62,7 +62,7 @@ public class Car {
 		double steering = (output[1]*2.0 - 1.0) * MAX_STEERING;
 		
 		// Move car
-		double turnRadius = SIZE.getWidth() * 1.0;
+		double turnRadius = SIZE.getWidth() * 0.5;
 		double maxSteering = Math.abs(velocity) / turnRadius;
 		if (Math.abs(steering) > maxSteering) {
 			steering = maxSteering * Math.signum(steering);
@@ -108,19 +108,25 @@ public class Car {
 	public Collection<Line> getSensorLines() {
 		List<Line> sensorLines = new LinkedList<Line>();
 		for (Sensor sensor : sensors) {
-			sensorLines.add(getSensorLine(sensor));
+			sensorLines.add(getSensorLine(sensor, false));
 		}
 		return sensorLines;
 	}
 	
-	private Line getSensorLine(Sensor sensor) {
+	/**
+	 * If {@code showMaxDistance} is true, the returned line will show the max
+	 * distance of the sensor, rather than the distance to the closest obstacle.
+	 */
+	private Line getSensorLine(Sensor sensor, boolean showMaxDistance) {
 		double angle = direction + sensor.angle;
+		double distance = showMaxDistance ? Sensor.MAX_DISTANCE : sensor.distance;
+		distance = Math.max(distance, 10.0);
 		Point near = new Point(
 				(int) (location.x + sensor.offset*Math.cos(angle)),
 				(int) (location.y + sensor.offset*Math.sin(angle)));
 		Point far = new Point(
-				(int) (location.x + (sensor.offset+Sensor.MAX_DISTANCE)*Math.cos(angle)),
-				(int) (location.y + (sensor.offset+Sensor.MAX_DISTANCE)*Math.sin(angle)));
+				(int) (location.x + (sensor.offset+distance)*Math.cos(angle)),
+				(int) (location.y + (sensor.offset+distance)*Math.sin(angle)));
 		return new Line(near, far);
 	}
 	
@@ -130,7 +136,7 @@ public class Car {
 		
 		for (int i = 0; i < sensors.size(); i++) {
 			Sensor sensor = sensors.get(i);
-			Line sensorLine = getSensorLine(sensor);
+			Line sensorLine = getSensorLine(sensor, true);
 			double distance = Sensor.MAX_DISTANCE;
 			for (Line obstacle : obstacles) {
 				Point collisionPoint = GeometryUtils.getIntersectionStrict(sensorLine, obstacle);
@@ -140,6 +146,7 @@ public class Car {
 							GeometryUtils.getDistance(sensorLocation, collisionPoint));
 				}
 			}
+			sensor.distance = distance;
 			values[i] = distance/Sensor.MAX_DISTANCE;
 		}
 		
@@ -153,6 +160,7 @@ public class Car {
 		private final double angle;
 		/** The distance from the cars center to the sensor. */
 		private final double offset;
+		private double distance;
 		
 		private Sensor(double angle, double offset) {
 			this.angle = angle;

@@ -30,7 +30,6 @@ public class SimulationGameState implements GameState {
 	private static final Color COLOR_SENSOR = new Color(255, 192, 0, 64);
 	private static final Color COLOR_CAR_OUTLINE = Color.BLACK;
 	private static final Color COLOR_OBSTACLE = Color.LIGHT_GRAY;
-	private static final boolean SHOW_SENSORS = false;
 	
 	private final Settings settings;
 	private World world = new World();
@@ -84,10 +83,11 @@ public class SimulationGameState implements GameState {
 		// Draw car sensors
 		g.setColor(COLOR_SENSOR);
 		g.setStroke(new BasicStroke(50f));
-		for (Car car : allCars) {
-			for (Line line : car.getSensorLines()) {
-				if (SHOW_SENSORS) {
-				g.drawLine(line.endPoint1.x, line.endPoint1.y, line.endPoint2.x, line.endPoint2.y);
+		if (settings.getShowSensors()) {
+			for (Car car : activeCars) {
+				for (Line line : car.getSensorLines()) {
+					g.drawLine(line.endPoint1.x, line.endPoint1.y,
+							line.endPoint2.x, line.endPoint2.y);
 				}
 			}
 		}

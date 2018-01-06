@@ -30,9 +30,21 @@ public class Evolution {
 	public List<NeuralNetwork> generateNextGeneration(List<NeuralNetwork> currentGeneration) {
 		List<NeuralNetwork> nextGeneration = new LinkedList<NeuralNetwork>();
 		final Map<NeuralNetwork, Integer> rank = new HashMap<NeuralNetwork, Integer>();
+		final int targetSize = currentGeneration.size();
+		
+		// Remove the worst
+		int numberToRemove = currentGeneration.size() / 4;
+		while (currentGeneration.size() > targetSize - numberToRemove) {
+			currentGeneration.remove(currentGeneration.size()-1);
+		}
+		
+		// Give the most fit 5 times the weight
+		for (int i = 1; i < 5; i++) {
+			currentGeneration.add(0, currentGeneration.get(0));
+		}
 		
 		int totalWeight = (currentGeneration.size()+1) * currentGeneration.size() / 2;
-		while (nextGeneration.size() < currentGeneration.size()) {
+		while (nextGeneration.size() < targetSize) {
 			int rand = RANDOM.nextInt(totalWeight);
 			for (int i = 0; i < currentGeneration.size(); i++) {
 				int weight = currentGeneration.size()-i;

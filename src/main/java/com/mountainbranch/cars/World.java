@@ -2,6 +2,7 @@ package com.mountainbranch.cars;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,32 +21,48 @@ public class World {
 				new Point(0,            size.height-1)
 				);
 		
+		createWorld1();
+	}
+	
+	private void createWorld1() {
 		createObstacles(
-				new Point((int) (size.getWidth()*1.0),  (int) (size.getHeight()*0.5)),
-				new Point((int) (size.getWidth()*0.75), (int) (size.getHeight()*0.5)),
-				new Point((int) (size.getWidth()*0.5),  (int) (size.getHeight()*0.75)),
-				new Point((int) (size.getWidth()*0.25), (int) (size.getHeight()*0.75)),
-				new Point((int) (size.getWidth()*0.2),  (int) (size.getHeight()*0.65)),
-				new Point((int) (size.getWidth()*0.2),  (int) (size.getHeight()*0.25)),
-				new Point((int) (size.getWidth()*0.75), (int) (size.getHeight()*0.1))
+				1.0,  0.5,
+				0.75, 0.5,
+				0.5,  0.75,
+				0.25, 0.75,
+				0.2,  0.65,
+				0.2,  0.25,
+				0.75, 0.1
 				);
 		
 		createObstacles(
-				new Point((int) (size.getWidth()*1.0),  (int) (size.getHeight()*0.85)),
-				new Point((int) (size.getWidth()*0.95), (int) (size.getHeight()*0.95)),
-				new Point((int) (size.getWidth()*0.85),  (int) (size.getHeight()*1.0))
-				);
+				1.0,  0.85,
+				0.95, 0.95,
+				0.85, 1.0);
 
 		createObstacles(
-				new Point((int) (size.getWidth()*0.0),  (int) (size.getHeight()*0.9)),
-				new Point((int) (size.getWidth()*0.1),  (int) (size.getHeight()*1.0))
-				);
+				0.0, 0.9,
+				0.1, 1.0);
 		
 		createObstaclesLoop(
-				new Point((int) (size.getWidth()*0.075), (int) (size.getHeight()*0.4)),
-				new Point((int) (size.getWidth()*0.125), (int) (size.getHeight()*0.4)),
-				new Point((int) (size.getWidth()*0.125), (int) (size.getHeight()*0.2))
-				);
+				0.075, 0.4,
+				0.125, 0.4,
+				0.125, 0.2);
+	}
+	
+	private void createObstacles(double... coords) {
+		List<Point> points = new ArrayList<Point>();
+		for (int i = 0; i < coords.length-1; i += 2) {
+			points.add(createPoint(coords[i], coords[i+1]));
+		}
+		createObstacles(points.toArray(new Point[points.size()]));
+	}
+	
+	private void createObstaclesLoop(double... coords) {
+		createObstacles(coords);
+		createObstacles(
+				coords[coords.length-2], coords[coords.length-1],
+				coords[0], coords[1]);
 	}
 	
 	private void createObstacles(Point... points) {
@@ -56,7 +73,12 @@ public class World {
 	
 	private void createObstaclesLoop(Point... points) {
 		createObstacles(points);
-		obstacles.add(new Line(points[points.length-1], points[0]));
+		createObstacles(points[points.length-1], points[0]);
+	}
+	
+	private Point createPoint(double worldX, double worldY) {
+		return new Point((int) (size.getWidth()  * worldX),
+		                 (int) (size.getHeight() * worldY));
 	}
 	
 	public Dimension getSize() {
