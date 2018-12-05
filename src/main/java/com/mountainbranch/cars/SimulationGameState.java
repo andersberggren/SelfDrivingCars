@@ -150,10 +150,8 @@ public class SimulationGameState implements GameState {
 		fitness.clear();
 		time = 0.0;
 		
-		Point startLocation = new Point(
-				world.getSize().width - Car.SIZE.width*2,
-				world.getSize().height/2 + Car.SIZE.width);
-		double startAngle = 0.75*Math.PI;
+		Point startLocation = world.getStartLocation();
+		double startAngle = world.getStartAngle();
 		for (NeuralNetwork nn : neuralNetworks) {
 			allCars.add(new Car(nn, startLocation, startAngle));
 		}
@@ -173,7 +171,7 @@ public class SimulationGameState implements GameState {
 	
 	private void updateFitness(Car car) {
 		Point center = new Point(world.getSize().width/2, world.getSize().height/2);
-		double angleRadians = GeometryUtils.getAngle(center, car.getLocation());
+		double angleRadians = GeometryUtils.getAngle(center, car.getLocation()) + 150.0/180.0 * Math.PI;
 		while (angleRadians < 0.0) {
 			angleRadians += 2.0 * Math.PI;
 		}

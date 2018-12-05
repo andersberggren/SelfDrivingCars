@@ -21,9 +21,10 @@ public class World {
 				new Point(0,            size.height-1)
 				);
 		
-		createWorld1();
+		createWorld2();
 	}
 	
+	@SuppressWarnings("unused")
 	private void createWorld1() {
 		createObstacles(
 				1.0,  0.5,
@@ -48,6 +49,53 @@ public class World {
 				0.075, 0.4,
 				0.125, 0.4,
 				0.125, 0.2);
+	}
+	
+	private void createWorld2() {
+		// Inner curve
+		createObstacles(
+				0.25, 0.00,
+				0.25, 0.25,
+				0.50, 0.25,
+				0.75, 0.15,
+				0.80, 0.20,
+				0.85, 0.25,
+				0.85, 0.40,
+				0.80, 0.50,
+				0.60, 0.50,
+				0.55, 0.55,
+				0.55, 0.80,
+				0.50, 0.85,
+				0.15, 0.85,
+				0.15, 0.75,
+				0.10, 0.75,
+				0.05, 0.10,
+				0.00, 0.10);
+		
+		// Top-right
+		createObstacles(
+				0.80, 0.00,
+				0.95, 0.10,
+				1.00, 0.30);
+		
+		// Bottom-right
+		createObstacles(
+				1.00, 0.45,
+				0.95, 0.55,
+				0.85, 0.65,
+				0.70, 0.65,
+				0.65, 0.70,
+				0.65, 0.95,
+				0.60, 0.95,
+				0.60, 1.00);
+		
+		// Bottom-left
+		createObstacles(
+				0.10, 1.00,
+				0.10, 0.90,
+				0.05, 0.90,
+				0.05, 0.80,
+				0.00, 0.80);
 	}
 	
 	private void createObstacles(double... coords) {
@@ -79,6 +127,16 @@ public class World {
 	private Point createPoint(double worldX, double worldY) {
 		return new Point((int) (size.getWidth()  * worldX),
 		                 (int) (size.getHeight() * worldY));
+	}
+	
+	public Point getStartLocation() {
+		return new Point(
+				size.width/4 + Car.SIZE.width,
+				size.height/8 + Car.SIZE.height);
+	}
+	
+	public double getStartAngle() {
+		return 0.0;
 	}
 	
 	public Dimension getSize() {
