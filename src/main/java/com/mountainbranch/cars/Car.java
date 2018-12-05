@@ -120,10 +120,19 @@ public class Car {
 		return lines;
 	}
 	
+	/**
+	 * Returns the cars sensors as {@link Line}s.
+	 * The line goes from the sensors position on the car to the nearest
+	 * obstacle in the direction the sensor is facing, or the sensors max range.
+	 * Used when rendering the sensors.
+	 */
 	public Collection<Line> getSensorLines() {
 		List<Line> sensorLines = new LinkedList<Line>();
 		for (Sensor sensor : sensors) {
-			sensorLines.add(getSensorLine(sensor, false));
+			Line sensorLine = getSensorLine(sensor, false);
+			if (sensorLine != null) {
+				sensorLines.add(sensorLine);
+			}
 		}
 		return sensorLines;
 	}
@@ -131,6 +140,9 @@ public class Car {
 	/**
 	 * If {@code showMaxDistance} is true, the returned line will show the max
 	 * distance of the sensor, rather than the distance to the closest obstacle.
+	 *
+	 * If the distance to the closest obstacle is 0, null will be returned,
+	 * since we can't create a {@link Line} with equal end points.
 	 */
 	private Line getSensorLine(Sensor sensor, boolean showMaxDistance) {
 		double angle = direction + sensor.angle;
@@ -141,7 +153,12 @@ public class Car {
 		Point far = new Point(
 				(int) (location.x + (sensor.offset+distance)*Math.cos(angle)),
 				(int) (location.y + (sensor.offset+distance)*Math.sin(angle)));
-		return new Line(near, far);
+		if (near.equals(far)) {
+			// Can't create a Line with identical end points.
+			return null;
+		} else {
+			return new Line(near, far);
+		}
 	}
 	
 	private double[] readSensors(World world) {
@@ -151,13 +168,16 @@ public class Car {
 		for (int i = 0; i < sensors.size(); i++) {
 			Sensor sensor = sensors.get(i);
 			Line sensorLine = getSensorLine(sensor, true);
-			double distance = Sensor.MAX_DISTANCE;
-			for (Line obstacle : obstacles) {
-				Point collisionPoint = GeometryUtils.getIntersectionStrict(sensorLine, obstacle);
-				if (collisionPoint != null) {
-					Point sensorLocation = sensorLine.endPoint1;
-					distance = Math.min(distance,
-							GeometryUtils.getDistance(sensorLocation, collisionPoint));
+			double distance = 0.0;
+			if (sensorLine != null) {
+				distance = Sensor.MAX_DISTANCE;
+				for (Line obstacle : obstacles) {
+					Point collisionPoint = GeometryUtils.getIntersectionStrict(sensorLine, obstacle);
+					if (collisionPoint != null) {
+						Point sensorLocation = sensorLine.endPoint1;
+						distance = Math.min(distance,
+								GeometryUtils.getDistance(sensorLocation, collisionPoint));
+					}
 				}
 			}
 			sensor.distance = distance;
