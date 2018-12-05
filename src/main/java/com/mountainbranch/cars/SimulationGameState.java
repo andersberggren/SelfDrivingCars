@@ -173,7 +173,17 @@ public class SimulationGameState implements GameState {
 	
 	private void updateFitness(Car car) {
 		Point center = new Point(world.getSize().width/2, world.getSize().height/2);
-		Integer angle = (int) (GeometryUtils.getAngle(center, car.getLocation()) * 1000.0);
+		double angleRadians = GeometryUtils.getAngle(center, car.getLocation());
+		while (angleRadians < 0.0) {
+			angleRadians += 2.0 * Math.PI;
+		}
+		while (angleRadians >= 2.0 * Math.PI) {
+			angleRadians -= 2.0 * Math.PI;
+		}
+		Integer angle = (int) (angleRadians * 1000.0);
+		if (angle < 0.0) {
+			System.out.println("Angle < 0: " + angle );
+		}
 		Integer maxAngle = fitness.get(car);
 		if (maxAngle == null || angle > maxAngle) {
 			fitness.put(car, angle);
