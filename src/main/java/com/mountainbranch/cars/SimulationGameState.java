@@ -45,7 +45,7 @@ public class SimulationGameState implements GameState {
 	
 	@Override
 	public void update(double deltaTime, GameEngine gameEngine) {
-		if (settings.getSkip()) {
+		if (settings.getFastForward()) {
 			while (!update(deltaTime));
 		} else {
 			update(deltaTime);

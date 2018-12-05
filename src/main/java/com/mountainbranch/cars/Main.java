@@ -31,13 +31,13 @@ public class Main {
 			}});
 		settingsFrame.add(showSensorsCheckBox);
 		
-		JButton skipButton = new JButton("Skip");
-		skipButton.addActionListener(new ActionListener(){
+		JButton fastForwardButton = new JButton("Fast-forward to next generation");
+		fastForwardButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				settings.setSkip();
+				settings.setFastForward();
 			}});
-		settingsFrame.add(skipButton);
+		settingsFrame.add(fastForwardButton);
 		
 		settingsFrame.pack();
 		settingsFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -1,16 +1,16 @@
 package com.mountainbranch.gui;
 
 public class Settings {
-	private boolean skip = false;
-	private boolean showSensors = false;
+	private boolean fastForward = false;
+	private boolean showSensors = true;
 	
-	public synchronized void setSkip() {
-		skip = true;
+	public synchronized void setFastForward() {
+		fastForward = true;
 	}
 	
-	public synchronized boolean getSkip() {
-		boolean prevValue = skip;
-		skip = false;
+	public synchronized boolean getFastForward() {
+		boolean prevValue = fastForward;
+		fastForward = false;
 		return prevValue;
 	}
 	
