@@ -32,16 +32,16 @@ public class Evolution {
 		final Map<NeuralNetwork, Integer> rank = new HashMap<NeuralNetwork, Integer>();
 		final int targetSize = currentGeneration.size();
 		
-		// Remove the worst
-		int numberToRemove = currentGeneration.size() / 4;
+		// Remove the worst half
+		int numberToRemove = currentGeneration.size() / 2;
 		while (currentGeneration.size() > targetSize - numberToRemove) {
 			currentGeneration.remove(currentGeneration.size()-1);
 		}
 		
-		// Give the most fit 5 times the weight
-		for (int i = 1; i < 5; i++) {
-			currentGeneration.add(0, currentGeneration.get(0));
-		}
+		// Best individual is automatically qualified for next generation (without mutation)
+		NeuralNetwork bestNN = new NeuralNetwork(currentGeneration.get(0));
+		nextGeneration.add(bestNN);
+		rank.put(bestNN, 0);
 		
 		int totalWeight = (currentGeneration.size()+1) * currentGeneration.size() / 2;
 		while (nextGeneration.size() < targetSize) {
