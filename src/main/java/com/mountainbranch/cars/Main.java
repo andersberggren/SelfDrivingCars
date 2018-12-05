@@ -29,6 +29,7 @@ public class Main {
 			public void actionPerformed(ActionEvent e) {
 				settings.setShowSensors(showSensorsCheckBox.isSelected());
 			}});
+		showSensorsCheckBox.setSelected(settings.getShowSensors());
 		settingsFrame.add(showSensorsCheckBox);
 		
 		JButton fastForwardButton = new JButton("Fast-forward to next generation");
