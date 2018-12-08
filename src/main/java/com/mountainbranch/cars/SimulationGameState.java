@@ -28,6 +28,7 @@ public class SimulationGameState implements GameState {
 	private Set<Car> activeCars = new HashSet<Car>();
 	private Map<Car, Integer> fitness = new HashMap<Car, Integer>();
 	private double time;
+	private int generation = 0;
 	private SimulationGameStateRenderer renderer = new SimulationGameStateRenderer();
 	
 	public SimulationGameState(Settings settings) {
@@ -108,6 +109,7 @@ public class SimulationGameState implements GameState {
 			allCars.add(new Car(nn, startLocation, startAngle));
 		}
 		activeCars.addAll(allCars);
+		settings.setGeneration(++generation);
 	}
 	
 	private boolean hasCollided(Car car) {
