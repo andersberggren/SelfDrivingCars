@@ -1,12 +1,8 @@
 package com.mountainbranch.cars;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Polygon;
-import java.awt.RenderingHints;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -26,17 +22,13 @@ import com.mountainbranch.ze.geom.GeometryUtils;
 import com.mountainbranch.ze.geom.Line;
 
 public class SimulationGameState implements GameState {
-	private static final Color COLOR_BACKGROUND = new Color(64, 64, 64);
-	private static final Color COLOR_SENSOR = new Color(255, 192, 0, 64);
-	private static final Color COLOR_CAR_OUTLINE = Color.BLACK;
-	private static final Color COLOR_OBSTACLE = Color.LIGHT_GRAY;
-	
 	private final Settings settings;
 	private World world = new World();
 	private List<Car> allCars = new ArrayList<Car>();
 	private Set<Car> activeCars = new HashSet<Car>();
 	private Map<Car, Integer> fitness = new HashMap<Car, Integer>();
 	private double time;
+	private SimulationGameStateRenderer renderer = new SimulationGameStateRenderer();
 	
 	public SimulationGameState(Settings settings) {
 		this.settings = settings;
@@ -73,47 +65,7 @@ public class SimulationGameState implements GameState {
 
 	@Override
 	public void render(Graphics2D g, Dimension screenSize) {
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g.clearRect(0, 0, screenSize.width, screenSize.height);
-		g.setColor(COLOR_BACKGROUND);
-		g.fillRect(0, 0, screenSize.width, screenSize.height);
-		g.scale(screenSize.getWidth()/world.getSize().getWidth(),
-				screenSize.getHeight()/world.getSize().getHeight());
-		
-		// Draw car sensors
-		g.setColor(COLOR_SENSOR);
-		g.setStroke(new BasicStroke(50f));
-		if (settings.getShowSensors()) {
-			for (Car car : activeCars) {
-				for (Line line : car.getSensorLines()) {
-					g.drawLine(line.endPoint1.x, line.endPoint1.y,
-							line.endPoint2.x, line.endPoint2.y);
-				}
-			}
-		}
-		
-		// Draw cars
-		for (int i = allCars.size()-1; i >= 0; i--) {
-			Car car = allCars.get(i);
-			Polygon carShape = new Polygon();
-			for (Line line : car.asLines()) {
-				carShape.addPoint(line.endPoint1.x, line.endPoint1.y);
-			}
-			float gradient = ((float) i) / allCars.size();
-			g.setColor(new Color(gradient, 1f-gradient, 0f));
-			g.fill(carShape);
-			
-			g.setColor(COLOR_CAR_OUTLINE);
-			g.setStroke(new BasicStroke(50f));
-			g.draw(carShape);
-		}
-		
-		// Draw obstacles
-		g.setStroke(new BasicStroke(100f));
-		g.setColor(COLOR_OBSTACLE);
-		for (Line line : world.getObstacles()) {
-			g.drawLine(line.endPoint1.x, line.endPoint1.y, line.endPoint2.x, line.endPoint2.y);
-		}
+		renderer.render(g, screenSize, world, settings, allCars, activeCars);
 	}
 	
 	private void reset() {
