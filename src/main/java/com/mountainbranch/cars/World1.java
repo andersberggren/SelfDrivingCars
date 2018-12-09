@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.mountainbranch.ze.geom.GeometryUtils;
 import com.mountainbranch.ze.geom.Line;
 
 public class World1 implements World {
@@ -22,37 +23,10 @@ public class World1 implements World {
 				new Point(0,            size.height-1)
 				);
 		
-		createWorld2();
+		createWorld();
 	}
 	
-	@SuppressWarnings("unused")
-	private void createWorld1() {
-		createObstacles(
-				1.0,  0.5,
-				0.75, 0.5,
-				0.5,  0.75,
-				0.25, 0.75,
-				0.2,  0.65,
-				0.2,  0.25,
-				0.75, 0.1
-				);
-		
-		createObstacles(
-				1.0,  0.85,
-				0.95, 0.95,
-				0.85, 1.0);
-
-		createObstacles(
-				0.0, 0.9,
-				0.1, 1.0);
-		
-		createObstaclesLoop(
-				0.075, 0.4,
-				0.125, 0.4,
-				0.125, 0.2);
-	}
-	
-	private void createWorld2() {
+	private void createWorld() {
 		// Inner curve
 		createObstacles(
 				0.25, 0.00,
@@ -107,13 +81,6 @@ public class World1 implements World {
 		createObstacles(points.toArray(new Point[points.size()]));
 	}
 	
-	private void createObstaclesLoop(double... coords) {
-		createObstacles(coords);
-		createObstacles(
-				coords[coords.length-2], coords[coords.length-1],
-				coords[0], coords[1]);
-	}
-	
 	private void createObstacles(Point... points) {
 		for (int i = 1; i < points.length; i++) {
 			obstacles.add(new Line(points[i-1], points[i]));
@@ -150,5 +117,14 @@ public class World1 implements World {
 	@Override
 	public Collection<Line> getObstacles() {
 		return obstacles;
+	}
+
+	@Override
+	public int getFitness(Car car) {
+		Point center = new Point(size.width/2, size.height/2);
+		Line midwayLine = new Line(center, new Point(size.width, size.height));
+		Line carLine = new Line(center, car.getLocation());
+		double angleRadians = GeometryUtils.getAngle(midwayLine, carLine);
+		return (int) (angleRadians * 1000.0);
 	}
 }

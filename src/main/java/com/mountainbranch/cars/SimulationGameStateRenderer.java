@@ -29,7 +29,7 @@ public class SimulationGameStateRenderer {
 		
 		// Draw car sensors
 		g.setColor(COLOR_SENSOR);
-		g.setStroke(new BasicStroke(50f));
+		g.setStroke(new BasicStroke(100f));
 		if (settings.getShowSensors()) {
 			for (Car car : activeCars) {
 				for (Line line : car.getSensorLines()) {
@@ -47,7 +47,7 @@ public class SimulationGameStateRenderer {
 				carShape.addPoint(line.endPoint1.x, line.endPoint1.y);
 			}
 			float gradient = ((float) i) / allCars.size();
-			g.setColor(new Color(gradient, 1f-gradient, 0f));
+			g.setColor(new Color(0f, 1f-gradient, 0f));
 			g.fill(carShape);
 			
 			g.setColor(COLOR_CAR_OUTLINE);

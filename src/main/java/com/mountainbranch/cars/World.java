@@ -11,4 +11,5 @@ public interface World {
 	public double getStartAngle();
 	public Dimension getSize();
 	public Collection<Line> getObstacles();
+	public int getFitness(Car car);
 }
