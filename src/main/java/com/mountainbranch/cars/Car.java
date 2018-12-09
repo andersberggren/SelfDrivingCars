@@ -20,7 +20,7 @@ public class Car {
 	public static final int NUMBER_OF_INPUTS = 13;
 	public static final int NUMBER_OF_OUTPUTS = 2;
 	private static final double MAX_SPEED = 30000.0;
-	private static final double MAX_STEERING = Math.PI;
+	private static final double MAX_STEERING = 2.0 * Math.PI;
 	
 	private final NeuralNetwork neuralNetwork;
 	private final Point2D.Double location;
@@ -77,7 +77,7 @@ public class Car {
 		double steering = (output[1]*2.0 - 1.0) * MAX_STEERING;
 		
 		// Move car
-		double turnRadius = SIZE.getWidth() * 0.5;
+		double turnRadius = 2.0 * SIZE.getWidth();
 		double maxSteering = Math.abs(velocity) / turnRadius;
 		if (Math.abs(steering) > maxSteering) {
 			steering = maxSteering * Math.signum(steering);

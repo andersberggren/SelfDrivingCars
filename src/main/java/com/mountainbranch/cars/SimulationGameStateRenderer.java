@@ -19,7 +19,7 @@ public class SimulationGameStateRenderer {
 	private static final Color COLOR_OBSTACLE = Color.LIGHT_GRAY;
 
 	public void render(Graphics2D g, Dimension screenSize, World world, Settings settings,
-			List<Car> allCars, Set<Car> activeCars) {
+			List<Car> allCars, Set<Car> activeCars, int generation) {
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.clearRect(0, 0, screenSize.width, screenSize.height);
 		g.setColor(COLOR_BACKGROUND);
@@ -47,7 +47,11 @@ public class SimulationGameStateRenderer {
 				carShape.addPoint(line.endPoint1.x, line.endPoint1.y);
 			}
 			float gradient = ((float) i) / allCars.size();
-			g.setColor(new Color(0f, 1f-gradient, 0f));
+			if (generation == 1) {
+				g.setColor(new Color(0f, 0.5f, 0f));
+			} else {
+				g.setColor(new Color(0f, 1f-gradient, 0f));
+			}
 			g.fill(carShape);
 			
 			g.setColor(COLOR_CAR_OUTLINE);

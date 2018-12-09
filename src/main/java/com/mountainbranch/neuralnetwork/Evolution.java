@@ -6,11 +6,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 public class Evolution {
-	private static final Random RANDOM = new Random();
-	
 	private final double mutationStandardDeviation;
 	
 	public Evolution(double mutationStandardDeviation) {
@@ -33,19 +30,32 @@ public class Evolution {
 		final int targetSize = currentGeneration.size();
 		
 		// Remove the worst half
+		/*
 		int numberToRemove = currentGeneration.size() / 2;
 		while (currentGeneration.size() > targetSize - numberToRemove) {
 			currentGeneration.remove(currentGeneration.size()-1);
 		}
+		*/
 		
 		// Best individual is automatically qualified for next generation (without mutation)
 		NeuralNetwork bestNN = new NeuralNetwork(currentGeneration.get(0));
 		nextGeneration.add(bestNN);
-		rank.put(bestNN, 0);
+		rank.put(bestNN, -1);
 		
+		for (int iMax = 1; nextGeneration.size() < targetSize; iMax++) {
+			for (int i = 0; i < iMax && nextGeneration.size() < targetSize; i++) {
+				NeuralNetwork nn = new NeuralNetwork(currentGeneration.get(i));
+				nn.mutateAllWeights(mutationStandardDeviation);
+				nextGeneration.add(nn);
+				rank.put(nn, i);
+			}
+		}
+		
+		/*
+		java.util.Random random = new java.util.Random();
 		int totalWeight = (currentGeneration.size()+1) * currentGeneration.size() / 2;
 		while (nextGeneration.size() < targetSize) {
-			int rand = RANDOM.nextInt(totalWeight);
+			int rand = random.nextInt(totalWeight);
 			for (int i = 0; i < currentGeneration.size(); i++) {
 				int weight = currentGeneration.size()-i;
 				if (rand < weight) {
@@ -59,6 +69,7 @@ public class Evolution {
 				}
 			}
 		}
+		*/
 		
 		Collections.sort(nextGeneration, new Comparator<NeuralNetwork>(){
 			@Override

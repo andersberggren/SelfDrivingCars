@@ -67,7 +67,7 @@ public class SimulationGameState implements GameState {
 
 	@Override
 	public void render(Graphics2D g, Dimension screenSize) {
-		renderer.render(g, screenSize, world, settings, allCars, activeCars);
+		renderer.render(g, screenSize, world, settings, allCars, activeCars, generation);
 	}
 	
 	private void reset() {
