@@ -64,9 +64,9 @@ public class Car {
 		return neuralNetwork;
 	}
 	
-	public void update(double deltaTime, World world) {
+	public void update(double deltaTime, Collection<Line> obstacles) {
 		// Read sensors
-		double[] input = readSensors(world);
+		double[] input = readSensors(obstacles);
 		
 		// Feed sensor values to neural network
 		neuralNetwork.setInputs(input);
@@ -161,10 +161,8 @@ public class Car {
 		}
 	}
 	
-	private double[] readSensors(World world) {
+	private double[] readSensors(Collection<Line> obstacles) {
 		double[] values = new double[sensors.size()];
-		List<Line> obstacles = world.getObstacles();
-		
 		for (int i = 0; i < sensors.size(); i++) {
 			Sensor sensor = sensors.get(i);
 			Line sensorLine = getSensorLine(sensor, true);

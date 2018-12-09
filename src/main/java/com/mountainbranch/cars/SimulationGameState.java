@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -23,7 +24,7 @@ import com.mountainbranch.ze.geom.Line;
 
 public class SimulationGameState implements GameState {
 	private final Settings settings;
-	private World world = new World();
+	private World world = new World1();
 	private List<Car> allCars = new ArrayList<Car>();
 	private Set<Car> activeCars = new HashSet<Car>();
 	private Map<Car, Integer> fitness = new HashMap<Car, Integer>();
@@ -48,9 +49,9 @@ public class SimulationGameState implements GameState {
 	// Returns true iff this generation completed during this update
 	private boolean update(double deltaTime) {
 		time += deltaTime;
-
+		Collection<Line> obstacles = world.getObstacles();
 		for (Car car : new LinkedList<Car>(activeCars)) {
-			car.update(deltaTime, world);
+			car.update(deltaTime, obstacles);
 			updateFitness(car);
 			if (hasCollided(car)) {
 				activeCars.remove(car);
