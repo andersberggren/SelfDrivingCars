@@ -185,6 +185,10 @@ public class Car {
 		return values;
 	}
 	
+	/**
+	 * A sensor that measures the distance from a point on the car to the
+	 * nearest obstacle, in the sensors direction.
+	 */
 	private class Sensor {
 		private static final double MAX_DISTANCE = 10000.0;
 		

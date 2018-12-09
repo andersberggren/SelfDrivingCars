@@ -120,11 +120,15 @@ public class World1 implements World {
 	}
 
 	@Override
-	public int getFitness(Car car) {
+	public int getFitness(Car car, double time) {
 		Point center = new Point(size.width/2, size.height/2);
 		Line midwayLine = new Line(center, new Point(size.width, size.height));
 		Line carLine = new Line(center, car.getLocation());
 		double angleRadians = GeometryUtils.getAngle(midwayLine, carLine);
-		return (int) (angleRadians * 1000.0);
+		double fitness = angleRadians;
+		if (car.getLocation().x < 10000 && car.getLocation().y < 12000) {
+			fitness += 1000.0 / time;
+		}
+		return (int) (fitness * 1000.0);
 	}
 }

@@ -27,7 +27,7 @@ public class SimulationGameState implements GameState {
 	private World world = new World1();
 	private List<Car> allCars = new ArrayList<Car>();
 	private Set<Car> activeCars = new HashSet<Car>();
-	private Map<Car, Integer> carTofitness = new HashMap<Car, Integer>();
+	private Map<Car, Integer> carToFitness = new HashMap<Car, Integer>();
 	private double time;
 	private int generation = 0;
 	private SimulationGameStateRenderer renderer = new SimulationGameStateRenderer();
@@ -101,7 +101,7 @@ public class SimulationGameState implements GameState {
 		
 		allCars.clear();
 		activeCars.clear();
-		carTofitness.clear();
+		carToFitness.clear();
 		time = 0.0;
 		
 		Point startLocation = world.getStartLocation();
@@ -125,21 +125,21 @@ public class SimulationGameState implements GameState {
 	}
 	
 	private void updateFitness(Car car) {
-		Integer currentFitness = world.getFitness(car);
-		Integer maxFitnessSoFar = carTofitness.get(car);
+		Integer currentFitness = world.getFitness(car, time);
+		Integer maxFitnessSoFar = carToFitness.get(car);
 		if (maxFitnessSoFar == null || currentFitness > maxFitnessSoFar) {
-			carTofitness.put(car, currentFitness);
+			carToFitness.put(car, currentFitness);
 		}
 	}
 	
 	private class CarComparator implements Comparator<Car> {
 		@Override
 		public int compare(Car o1, Car o2) {
-			Integer fitness1 = carTofitness.get(o1);
+			Integer fitness1 = carToFitness.get(o1);
 			if (fitness1 == null) {
 				fitness1 = 0;
 			}
-			Integer fitness2 = carTofitness.get(o2);
+			Integer fitness2 = carToFitness.get(o2);
 			if (fitness2 == null) {
 				fitness2 = 0;
 			}
