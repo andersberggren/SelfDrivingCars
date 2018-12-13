@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.mountainbranch.ze.geom.GeometryUtils;
 import com.mountainbranch.ze.geom.Line;
 
 public class World1 implements World {
@@ -117,18 +116,5 @@ public class World1 implements World {
 	@Override
 	public Collection<Line> getObstacles() {
 		return obstacles;
-	}
-
-	@Override
-	public int getFitness(Car car, double time) {
-		Point center = new Point(size.width/2, size.height/2);
-		Line midwayLine = new Line(center, new Point(size.width, size.height));
-		Line carLine = new Line(center, car.getLocation());
-		double angleRadians = GeometryUtils.getAngle(midwayLine, carLine);
-		double fitness = angleRadians;
-		if (car.getLocation().x < 10000 && car.getLocation().y < 12000) {
-			fitness += 1000.0 / time;
-		}
-		return (int) (fitness * 1000.0);
 	}
 }

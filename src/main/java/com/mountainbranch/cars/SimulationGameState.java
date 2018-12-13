@@ -5,13 +5,9 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.mountainbranch.gameframework.core.GameEngine;
@@ -25,12 +21,12 @@ import com.mountainbranch.ze.geom.Line;
 public class SimulationGameState implements GameState {
 	private final Settings settings;
 	private World world = new World1();
+	private SimulationGameStateRenderer renderer = new SimulationGameStateRenderer();
+	private FitnessEvaluator fitnessEvaluator = new FitnessEvaluator(world);
 	private List<Car> allCars = new ArrayList<Car>();
 	private Set<Car> activeCars = new HashSet<Car>();
-	private Map<Car, Integer> carToFitness = new HashMap<Car, Integer>();
 	private double time;
 	private int generation = 0;
-	private SimulationGameStateRenderer renderer = new SimulationGameStateRenderer();
 	
 	public SimulationGameState(Settings settings) {
 		this.settings = settings;
@@ -52,8 +48,8 @@ public class SimulationGameState implements GameState {
 		Collection<Line> obstacles = world.getObstacles();
 		for (Car car : new LinkedList<Car>(activeCars)) {
 			car.update(deltaTime, obstacles);
-			updateFitness(car);
-			if (hasCollided(car)) {
+			fitnessEvaluator.updateFitness(car, time);
+			if (hasCollided(car) || fitnessEvaluator.hasFinished(car)) {
 				activeCars.remove(car);
 			}
 		}
@@ -87,21 +83,18 @@ public class SimulationGameState implements GameState {
 			// Create a new generation based on the current generation.
 			
 			// Sort cars by fitness (highest fitness first)
-			Collections.sort(allCars, new CarComparator());
-			Collections.reverse(allCars);
-			
+			fitnessEvaluator.sortOnFitness(allCars);
 			List<NeuralNetwork> currentGeneration = new LinkedList<NeuralNetwork>();
 			for (Car car : allCars) {
 				currentGeneration.add(car.getNeuralNetwork());
 			}
-			
 			Evolution evolution = new Evolution(0.05);
 			neuralNetworks = evolution.generateNextGeneration(currentGeneration);
 		}
 		
 		allCars.clear();
 		activeCars.clear();
-		carToFitness.clear();
+		fitnessEvaluator.resetFitness();
 		time = 0.0;
 		
 		Point startLocation = world.getStartLocation();
@@ -122,29 +115,5 @@ public class SimulationGameState implements GameState {
 			}
 		}
 		return false;
-	}
-	
-	private void updateFitness(Car car) {
-		Integer currentFitness = world.getFitness(car, time);
-		Integer maxFitnessSoFar = carToFitness.get(car);
-		if (maxFitnessSoFar == null || currentFitness > maxFitnessSoFar) {
-			carToFitness.put(car, currentFitness);
-		}
-	}
-	
-	private class CarComparator implements Comparator<Car> {
-		@Override
-		public int compare(Car o1, Car o2) {
-			Integer fitness1 = carToFitness.get(o1);
-			if (fitness1 == null) {
-				fitness1 = 0;
-			}
-			Integer fitness2 = carToFitness.get(o2);
-			if (fitness2 == null) {
-				fitness2 = 0;
-			}
-			return (int) ((fitness1 - fitness2) * 1000.0);
-		}
-		
 	}
 }
