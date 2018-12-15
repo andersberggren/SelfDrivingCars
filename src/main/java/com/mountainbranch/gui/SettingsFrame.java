@@ -8,19 +8,22 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 public class SettingsFrame implements SettingsListener {
 	private JLabel generationLabel;
 	
 	public SettingsFrame(final Settings settings) {
-		JFrame settingsFrame = new JFrame("Settings");
-		settingsFrame.setLayout(new GridLayout(0, 1));
+		JFrame frame = new JFrame("Settings");
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout(0, 1));
+		panel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		frame.add(panel);
 		
 		generationLabel = new JLabel();
 		updateGenerationLabelText(settings);
-		generationLabel.setBorder(new EmptyBorder(0, 5, 0, 0));
-		settingsFrame.add(generationLabel);
+		panel.add(generationLabel);
 		final JCheckBox showSensorsCheckBox = new JCheckBox("Show sensors");
 		showSensorsCheckBox.addActionListener(new ActionListener(){
 			@Override
@@ -28,7 +31,7 @@ public class SettingsFrame implements SettingsListener {
 				settings.setShowSensors(showSensorsCheckBox.isSelected());
 			}});
 		showSensorsCheckBox.setSelected(settings.getShowSensors());
-		settingsFrame.add(showSensorsCheckBox);
+		panel.add(showSensorsCheckBox);
 		
 		JButton fastForwardButton = new JButton("Fast-forward to next generation");
 		fastForwardButton.addActionListener(new ActionListener(){
@@ -36,11 +39,11 @@ public class SettingsFrame implements SettingsListener {
 			public void actionPerformed(ActionEvent e) {
 				settings.setFastForward();
 			}});
-		settingsFrame.add(fastForwardButton);
+		panel.add(fastForwardButton);
 		
-		settingsFrame.pack();
-		settingsFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		settingsFrame.setVisible(true);
+		frame.pack();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
 		settings.addListener(this);
 	}
 

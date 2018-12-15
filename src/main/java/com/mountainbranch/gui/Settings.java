@@ -3,8 +3,6 @@ package com.mountainbranch.gui;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.JFrame;
-
 public class Settings {
 	private int generation = 1;
 	private boolean fastForward = false;
