@@ -2,6 +2,7 @@ package com.mountainbranch.cars;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -12,9 +13,11 @@ import com.mountainbranch.ze.geom.Line;
 public abstract class WorldBase implements World {
 	protected final Dimension size;
 	protected final List<Line> obstacles = new LinkedList<Line>();
+	protected final Rectangle goal;
 	
-	public WorldBase(int width, int height) {
+	public WorldBase(int width, int height, Rectangle goal) {
 		this.size = new Dimension(width, height);
+		this.goal = goal;
 		
 		// Perimeter
 		createObstaclesLoop(
@@ -26,12 +29,6 @@ public abstract class WorldBase implements World {
 	}
 	
 	@Override
-	public abstract Point getStartLocation();
-
-	@Override
-	public abstract double getStartAngle();
-
-	@Override
 	public Dimension getSize() {
 		return size;
 	}
@@ -39,6 +36,11 @@ public abstract class WorldBase implements World {
 	@Override
 	public Collection<Line> getObstacles() {
 		return obstacles;
+	}
+	
+	@Override
+	public Rectangle getGoal() {
+		return goal;
 	}
 
 	protected void createObstacles(double... coords) {

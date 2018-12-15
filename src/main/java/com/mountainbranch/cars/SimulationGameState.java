@@ -20,7 +20,7 @@ import com.mountainbranch.ze.geom.Line;
 
 public class SimulationGameState implements GameState {
 	private final Settings settings;
-	private World world = new World1();
+	private World world = new World2();
 	private SimulationGameStateRenderer renderer = new SimulationGameStateRenderer();
 	private FitnessEvaluator fitnessEvaluator = new FitnessEvaluator(world);
 	private List<Car> allCars = new ArrayList<Car>();
@@ -49,7 +49,7 @@ public class SimulationGameState implements GameState {
 		for (Car car : new LinkedList<Car>(activeCars)) {
 			car.update(deltaTime, obstacles);
 			fitnessEvaluator.updateFitness(car, time);
-			if (hasCollided(car) || fitnessEvaluator.hasFinished(car)) {
+			if (hasCollided(car) || hasFinished(car)) {
 				activeCars.remove(car);
 			}
 		}
@@ -115,5 +115,9 @@ public class SimulationGameState implements GameState {
 			}
 		}
 		return false;
+	}
+	
+	private boolean hasFinished(Car car) {
+		return world.getGoal().contains(car.getLocation());
 	}
 }

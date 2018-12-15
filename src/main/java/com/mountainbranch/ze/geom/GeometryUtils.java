@@ -108,6 +108,33 @@ public class GeometryUtils {
 	}
 
 	/**
+	 * Returns the shortest distance from {@code p} to {@code line}, which is either the
+	 * perpendicular distance from the point to the line, or the distance from {@code p}
+	 * to one of the end points of {@code line}.
+	 */
+	public static double getShortestDistanceFromLineToPoint(Line line, Point p) {
+		// 'a' and 'b' are the line's endpoints.
+		// 'ab', 'ba', 'ap' and 'bp' are vectors from/to the respective points.
+		Point ab = line.getParallelVector();
+		Point ba = new Point(-ab.x, -ab.y);
+		Point ap = getVectorBetweenPoints(line.endPoint1, p);
+		Point bp = getVectorBetweenPoints(line.endPoint2, p);
+
+		if (dotProduct(ab, ap) < 0 || dotProduct(ba, bp) < 0) {
+			// One of the dot products are negative, which means that the perpendicular projection
+			// of p on the line is outside the line (i.e. somewhere on the line's extension),
+			// and the shortest vector to the line is from the closest endpoint.
+			return Math.min(getDistance(line.endPoint1, p), getDistance(line.endPoint2, p));
+		} else {
+			// The shortest vector is perpendicular to the line
+			Point normal = line.getNormalVector();
+			double normalLength = getLength(normal);
+			double distance = Math.abs(dotProduct(normal, ap) / normalLength);
+			return distance;
+		}
+	}
+
+	/**
 	 * Returns {@code true} iff {@code line1} and {@code line2} are parallel.
 	 */
 	public static boolean isParallel(Line line1, Line line2) {

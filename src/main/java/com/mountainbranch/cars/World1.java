@@ -1,10 +1,11 @@
 package com.mountainbranch.cars;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 
 public class World1 extends WorldBase implements World {
 	public World1() {
-		super(1920 * 50, 1200 * 50);
+		super(1920 * 50, 1200 * 50, new Rectangle(0, 0, 10000, 600*50));
 		createWorld();
 	}
 	
