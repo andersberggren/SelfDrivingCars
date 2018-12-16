@@ -41,6 +41,16 @@ public class NeuralNetwork {
 					}
 					neuron.addInput(inputLayer.get(iInputNeuron), weight);
 				}
+				// Bias node
+				if (iLayer > 0) {
+					Neuron biasNeuron = new Neuron();
+					biasNeuron.setValue(1.0);
+					double weight = 0.0;
+					if (parent != null) {
+						weight = parent.getWeight(iLayer, iOutputNeuron, neuronsPerLayer[iLayer-1]);
+					}
+					neuron.addInput(biasNeuron, weight);
+				}
 				newLayer.add(neuron);
 			}
 			neuronLayers.add(newLayer);
