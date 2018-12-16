@@ -17,7 +17,7 @@ public class Car {
 	// Speed is mm/s.
 	// Rotation is radians/s.
 	public static final Dimension SIZE = new Dimension(4000, 2000);
-	public static final int NUMBER_OF_INPUTS = 13;
+	public static final int NUMBER_OF_INPUTS = 7;
 	public static final int NUMBER_OF_OUTPUTS = 2;
 	private static final double MAX_SPEED = 30000.0;
 	private static final double MAX_STEERING = 2.0 * Math.PI;
@@ -34,7 +34,7 @@ public class Car {
 		
 		// Create sensors
 		sensors = new ArrayList<Sensor>();
-		double angleSpread = Math.PI;
+		double angleSpread = 2.0/3.0 * Math.PI;
 		double sensorLength = SIZE.getWidth()+SIZE.getHeight();
 		Point carCenter = new Point((int) location.x, (int) location.y);
 		Collection<Line> carAsLines = this.asLines();

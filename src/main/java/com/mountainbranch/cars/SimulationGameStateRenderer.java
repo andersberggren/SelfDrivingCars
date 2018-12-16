@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +27,19 @@ public class SimulationGameStateRenderer {
 		g.fillRect(0, 0, screenSize.width, screenSize.height);
 		g.scale(screenSize.getWidth()/world.getSize().getWidth(),
 				screenSize.getHeight()/world.getSize().getHeight());
+		
+		// Draw goal
+		Rectangle goal = world.getGoal();
+		int numberOfSquares = 6;
+		int squareWidth = goal.width / numberOfSquares;
+		int squareHeight = goal.height / numberOfSquares;
+		for (int y = 0; y < numberOfSquares; y++) {
+			for (int x = 0; x < numberOfSquares; x++) {
+				g.setColor((x+y)%2==0 ? Color.WHITE : Color.BLACK);
+				g.fillRect(goal.x+squareWidth*x, goal.y+squareHeight*y,
+						squareWidth, squareHeight);
+			}
+		}
 		
 		// Draw car sensors
 		g.setColor(COLOR_SENSOR);

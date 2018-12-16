@@ -9,8 +9,10 @@ public class World2 extends WorldBase implements World {
 	private static final int PIXEL_SIZE = 80;
 	
 	public World2() {
-		super(1920 * PIXEL_SIZE, 1080 * PIXEL_SIZE,
-				new Rectangle(0, 0, 90 * PIXEL_SIZE, 1080/4 * PIXEL_SIZE));
+		super(1920 * PIXEL_SIZE,
+		      1080 * PIXEL_SIZE,
+		      new Rectangle(10 * PIXEL_SIZE, 270 * PIXEL_SIZE,
+		                    70 * PIXEL_SIZE, 70 * PIXEL_SIZE));
 		createWorld();
 	}
 	
