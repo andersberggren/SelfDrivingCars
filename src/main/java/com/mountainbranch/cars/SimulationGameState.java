@@ -71,7 +71,7 @@ public class SimulationGameState implements GameState {
 		if (allCars.isEmpty()) {
 			// This is the first generation
 			int numberOfIndividuals = 100;
-			int[] neuronsPerLayer = new int[4];
+			int[] neuronsPerLayer = new int[3];
 			for (int i = 0; i < neuronsPerLayer.length-1; i++) {
 				neuronsPerLayer[i] = Car.NUMBER_OF_INPUTS;
 			}

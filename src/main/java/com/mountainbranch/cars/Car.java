@@ -25,14 +25,15 @@ public class Car {
 	private final NeuralNetwork neuralNetwork;
 	private final Point2D.Double location;
 	private double direction;
-	private List<Sensor> sensors;
+	private List<Sensor> sensors = new ArrayList<Sensor>();
 	
 	public Car(NeuralNetwork neuralNetwork, Point startLocation, double direction) {
 		this.neuralNetwork = neuralNetwork;
 		this.location = new Point2D.Double(startLocation.x, startLocation.y);
 		this.direction = direction;
-		
-		// Create sensors
+	}
+	
+	private void createSensors() {
 		sensors = new ArrayList<Sensor>();
 		double angleSpread = 2.0/3.0 * Math.PI;
 		double sensorLength = SIZE.getWidth()+SIZE.getHeight();
@@ -66,7 +67,11 @@ public class Car {
 	
 	public void update(double deltaTime, Collection<Line> obstacles) {
 		// Read sensors
-		double[] input = readSensors(obstacles);
+		if (sensors.isEmpty()) {
+			createSensors();
+			updateSensors(obstacles);
+		}
+		double[] input = readSensors();
 		
 		// Feed sensor values to neural network
 		neuralNetwork.setInputs(input);
@@ -85,6 +90,8 @@ public class Car {
 		direction += steering * deltaTime;
 		location.x += velocity * deltaTime * Math.cos(direction);
 		location.y += velocity * deltaTime * Math.sin(direction);
+		
+		updateSensors(obstacles);
 	}
 	
 	public Point getLocation() {
@@ -161,27 +168,27 @@ public class Car {
 		}
 	}
 	
-	private double[] readSensors(Collection<Line> obstacles) {
-		double[] values = new double[sensors.size()];
-		for (int i = 0; i < sensors.size(); i++) {
-			Sensor sensor = sensors.get(i);
+	private void updateSensors(Collection<Line> obstacles) {
+		for (Sensor sensor : sensors) {
 			Line sensorLine = getSensorLine(sensor, true);
-			double distance = 0.0;
-			if (sensorLine != null) {
-				distance = Sensor.MAX_DISTANCE;
-				for (Line obstacle : obstacles) {
-					Point collisionPoint = GeometryUtils.getIntersectionStrict(sensorLine, obstacle);
-					if (collisionPoint != null) {
-						Point sensorLocation = sensorLine.endPoint1;
-						distance = Math.min(distance,
-								GeometryUtils.getDistance(sensorLocation, collisionPoint));
-					}
+			double distance = Sensor.MAX_DISTANCE;
+			for (Line obstacle : obstacles) {
+				Point collisionPoint = GeometryUtils.getIntersectionStrict(sensorLine, obstacle);
+				if (collisionPoint != null) {
+					Point sensorLocation = sensorLine.endPoint1;
+					distance = Math.min(distance,
+							GeometryUtils.getDistance(sensorLocation, collisionPoint));
 				}
 			}
 			sensor.distance = distance;
-			values[i] = distance/Sensor.MAX_DISTANCE;
 		}
-		
+	}
+	
+	private double[] readSensors() {
+		double[] values = new double[sensors.size()];
+		for (int i = 0; i < sensors.size(); i++) {
+			values[i] = sensors.get(i).distance / Sensor.MAX_DISTANCE;
+		}
 		return values;
 	}
 	
