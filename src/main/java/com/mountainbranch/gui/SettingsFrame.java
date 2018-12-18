@@ -43,6 +43,7 @@ public class SettingsFrame implements SettingsListener {
 		
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLocation(20, 20);
 		frame.setVisible(true);
 		settings.addListener(this);
 	}

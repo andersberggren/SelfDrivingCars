@@ -14,17 +14,20 @@ import com.mountainbranch.ze.geom.Line;
 
 public class Car {
 	// Distance is mm.
-	// Speed is mm/s.
+	// Velocity is mm/s.
 	// Rotation is radians/s.
 	public static final Dimension SIZE = new Dimension(4000, 2000);
-	public static final int NUMBER_OF_INPUTS = 7;
+	public static final int NUMBER_OF_SENSORS = 7;
+	public static final int NUMBER_OF_INPUTS = NUMBER_OF_SENSORS + 1;
 	public static final int NUMBER_OF_OUTPUTS = 2;
+	private static final double MAX_ACCELERATION = 20000.0;
 	private static final double MAX_SPEED = 30000.0;
 	private static final double MAX_STEERING = 2.0 * Math.PI;
 	
 	private final NeuralNetwork neuralNetwork;
 	private final Point2D.Double location;
 	private double direction;
+	private double velocity = 0.0;
 	private List<Sensor> sensors = new ArrayList<Sensor>();
 	
 	public Car(NeuralNetwork neuralNetwork, Point startLocation, double direction) {
@@ -39,8 +42,8 @@ public class Car {
 		double sensorLength = SIZE.getWidth()+SIZE.getHeight();
 		Point carCenter = new Point((int) location.x, (int) location.y);
 		Collection<Line> carAsLines = this.asLines();
-		for (int i = 0; i < NUMBER_OF_INPUTS; i++) {
-			double sensorAngle = -(angleSpread/2.0) + i*angleSpread/(NUMBER_OF_INPUTS-1);
+		for (int i = 0; i < NUMBER_OF_SENSORS; i++) {
+			double sensorAngle = -(angleSpread/2.0) + i*angleSpread/(NUMBER_OF_SENSORS-1);
 			double combinedAngle = direction + sensorAngle;
 			Line sensorLine = new Line(
 					carCenter,
@@ -55,9 +58,9 @@ public class Car {
 				}
 			}
 		}
-		if (sensors.size() != NUMBER_OF_INPUTS) {
+		if (sensors.size() != NUMBER_OF_SENSORS) {
 			throw new RuntimeException(sensors.size() + " sensors was created, but expected "
-					+ NUMBER_OF_INPUTS);
+					+ NUMBER_OF_SENSORS);
 		}
 	}
 	
@@ -71,14 +74,23 @@ public class Car {
 			createSensors();
 			updateSensors(obstacles);
 		}
-		double[] input = readSensors();
+		double[] input = new double[NUMBER_OF_INPUTS];
+		double[] sensorInput = readSensors();
+		for (int i = 0; i < sensorInput.length; i++) {
+			input[i] = sensorInput[i];
+		}
+		input[input.length-1] = velocity/(MAX_SPEED*2.0) + 0.5;
 		
 		// Feed sensor values to neural network
 		neuralNetwork.setInputs(input);
 		
-		// Use neural network output to determine velocity and steering
+		// Use neural network output to determine acceleration and steering
 		double[] output = neuralNetwork.getOutputs();
-		double velocity = (output[0]*2.0 - 1.0) * MAX_SPEED;
+		double acceleration = (output[0]*2.0 - 1.0) * MAX_ACCELERATION;
+		velocity += acceleration * deltaTime;
+		if (Math.abs(velocity) > MAX_SPEED) {
+			velocity = MAX_SPEED * Math.signum(velocity);
+		}
 		double steering = (output[1]*2.0 - 1.0) * MAX_STEERING;
 		
 		// Move car
