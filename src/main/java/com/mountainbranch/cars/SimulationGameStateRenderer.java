@@ -63,6 +63,8 @@ public class SimulationGameStateRenderer {
 			float gradient = ((float) i) / allCars.size();
 			if (generation == 1) {
 				g.setColor(new Color(0f, 0.5f, 0f));
+			} else if (i == 0) {
+				g.setColor(new Color(1f, 0.5f, 1f));
 			} else {
 				g.setColor(new Color(0f, 1f-gradient, 0f));
 			}

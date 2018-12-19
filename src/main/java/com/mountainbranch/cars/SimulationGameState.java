@@ -67,10 +67,11 @@ public class SimulationGameState implements GameState {
 	}
 	
 	private void reset() {
+		System.out.println("Best fitness: " + Debug.bestFitness);
 		List<NeuralNetwork> neuralNetworks;
 		if (allCars.isEmpty()) {
 			// This is the first generation
-			int numberOfIndividuals = 100;
+			int numberOfIndividuals = 1+1+2+3+4+5+6+7+8+9+10;
 			int[] neuronsPerLayer = new int[3];
 			for (int i = 0; i < neuronsPerLayer.length-1; i++) {
 				neuronsPerLayer[i] = Car.NUMBER_OF_INPUTS;
