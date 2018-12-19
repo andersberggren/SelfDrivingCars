@@ -38,10 +38,10 @@ public class World2 extends WorldBase implements World {
 				resolution.width-roadWidth2-75, roadWidth1,
 				resolution.width-roadWidth2,    roadWidth1+75,
 				// Middle-right
-				resolution.width-roadWidth2,    resolution.height/2-roadWidth2*99/70,
+				resolution.width-roadWidth2,   resolution.height/2-roadWidth2*99/70,
 				resolution.width-2*roadWidth2, resolution.height/2-roadWidth2*(99-70)/70,
-				resolution.width-2*roadWidth2, resolution.height/2+roadWidth2*(99-70)/70,
-				resolution.width-roadWidth2, resolution.height/2+roadWidth2*99/70,
+				resolution.width-2*roadWidth2, resolution.height/2+roadWidth2*(99-70)/70+150,
+				resolution.width-roadWidth2,   resolution.height/2+roadWidth2*99/70+150,
 				// Bottom-right corner
 				resolution.width-roadWidth2,    resolution.height-roadWidth3-50,
 				resolution.width-roadWidth2-50, resolution.height-roadWidth3,
@@ -89,7 +89,8 @@ public class World2 extends WorldBase implements World {
 			createObstacles(
 					resolution.width,            resolution.height/2-roadWidth2,
 					resolution.width-roadWidth2, resolution.height/2,
-					resolution.width,            resolution.height/2+roadWidth2);
+					resolution.width-roadWidth2, resolution.height/2+150,
+					resolution.width,            resolution.height/2+150+roadWidth2);
 		}
 		
 		{

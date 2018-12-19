@@ -17,11 +17,10 @@ public class Car {
 	// Velocity is mm/s.
 	// Rotation is radians/s.
 	public static final Dimension SIZE = new Dimension(4000, 2000);
-	public static final int NUMBER_OF_SENSORS = 7;
-	public static final int NUMBER_OF_INPUTS = NUMBER_OF_SENSORS + 1;
+	public static final int NUMBER_OF_INPUTS = 7;
 	public static final int NUMBER_OF_OUTPUTS = 2;
-	private static final double MAX_ACCELERATION = 20000.0;
-	private static final double MAX_SPEED = 30000.0;
+	private static final double MAX_ACCELERATION = 10000.0;
+	private static final double MAX_SPEED = 50000.0;
 	private static final double MAX_STEERING = 2.0 * Math.PI;
 	
 	private final NeuralNetwork neuralNetwork;
@@ -42,8 +41,8 @@ public class Car {
 		double sensorLength = SIZE.getWidth()+SIZE.getHeight();
 		Point carCenter = new Point((int) location.x, (int) location.y);
 		Collection<Line> carAsLines = this.asLines();
-		for (int i = 0; i < NUMBER_OF_SENSORS; i++) {
-			double sensorAngle = -(angleSpread/2.0) + i*angleSpread/(NUMBER_OF_SENSORS-1);
+		for (int i = 0; i < NUMBER_OF_INPUTS; i++) {
+			double sensorAngle = -(angleSpread/2.0) + i*angleSpread/(NUMBER_OF_INPUTS-1);
 			double combinedAngle = direction + sensorAngle;
 			Line sensorLine = new Line(
 					carCenter,
@@ -58,9 +57,9 @@ public class Car {
 				}
 			}
 		}
-		if (sensors.size() != NUMBER_OF_SENSORS) {
+		if (sensors.size() != NUMBER_OF_INPUTS) {
 			throw new RuntimeException(sensors.size() + " sensors was created, but expected "
-					+ NUMBER_OF_SENSORS);
+					+ NUMBER_OF_INPUTS);
 		}
 	}
 	
@@ -74,31 +73,28 @@ public class Car {
 			createSensors();
 			updateSensors(obstacles);
 		}
-		double[] input = new double[NUMBER_OF_INPUTS];
-		double[] sensorInput = readSensors();
-		for (int i = 0; i < sensorInput.length; i++) {
-			input[i] = sensorInput[i];
-		}
-		input[input.length-1] = velocity/(MAX_SPEED*2.0) + 0.5;
+		double[] input = readSensors();
 		
 		// Feed sensor values to neural network
 		neuralNetwork.setInputs(input);
 		
 		// Use neural network output to determine acceleration and steering
 		double[] output = neuralNetwork.getOutputs();
-		double acceleration = (output[0]*2.0 - 1.0) * MAX_ACCELERATION;
-		velocity += acceleration * deltaTime;
-		if (Math.abs(velocity) > MAX_SPEED) {
-			velocity = MAX_SPEED * Math.signum(velocity);
-		}
+		double targetVelocity = output[0] * MAX_SPEED;
+		double velocityChange = Math.min(MAX_ACCELERATION*deltaTime,
+		                                 Math.abs(targetVelocity-velocity));
 		double steering = (output[1]*2.0 - 1.0) * MAX_STEERING;
-		
-		// Move car
-		double turnRadius = 2.0 * SIZE.getWidth();
+		double turnRadius = 1.5 * SIZE.getWidth();
+		double turningAcceleration = 15.0*15.0 / (turnRadius/1000.0); // v^2/r, m/s^2
+		turnRadius = Math.max(turnRadius,
+				Math.pow(Math.abs(velocity)/1000.0, 2.0) / turningAcceleration * 1000.0);
 		double maxSteering = Math.abs(velocity) / turnRadius;
 		if (Math.abs(steering) > maxSteering) {
 			steering = maxSteering * Math.signum(steering);
 		}
+		
+		// Move car
+		velocity += velocityChange * Math.signum(targetVelocity-velocity);
 		direction += steering * deltaTime;
 		location.x += velocity * deltaTime * Math.cos(direction);
 		location.y += velocity * deltaTime * Math.sin(direction);
@@ -209,7 +205,7 @@ public class Car {
 	 * nearest obstacle, in the sensors direction.
 	 */
 	private class Sensor {
-		private static final double MAX_DISTANCE = 10000.0;
+		private static final double MAX_DISTANCE = 15000.0;
 		
 		/** The angle of the sensor, relative to the cars forward direction. */
 		private final double angle;
